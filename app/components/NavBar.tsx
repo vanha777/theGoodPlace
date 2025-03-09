@@ -3,8 +3,29 @@
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import { useWallet, useConnection } from "@solana/wallet-adapter-react"
+import dynamic from 'next/dynamic'
+
+// Dynamically import the WalletMultiButton to avoid SSR issues
+const WalletMultiButtonDynamic = dynamic(
+    () => import('@solana/wallet-adapter-react-ui').then((mod) => mod.WalletMultiButton),
+    { ssr: false }
+  )
+  
 
 export default function NavBar() {
+    const { publicKey, connected, connect, disconnect, signMessage, wallet } = useWallet();
+    const { connection } = useConnection();
+
+    useEffect(() => {
+        console.log("this is wallet", wallet?.readyState)
+        console.log("this is publicKey", publicKey?.toString())
+        console.log("this is connected", connected)
+        console.log("this is connection", connection.rpcEndpoint)
+    }, [publicKey]);
+
     return (
         <motion.nav
             initial={{ y: -100 }}
@@ -47,14 +68,44 @@ export default function NavBar() {
 
                     {/* CTA Button */}
                     <div>
-                        <Link
-                            href="/dashboard"
-                            className="bg-[#E0FF00] text-gray-900 px-6 py-2 rounded-lg font-medium 
-                            hover:bg-[#E0FF00]/90 transition-all duration-300 
-                            border border-[#E0FF00]/20 shadow-md shadow-[#E0FF00]/10"
-                        >
-                            Claim Your Spot
-                        </Link>
+                        {wallet ? (
+                            <WalletMultiButtonDynamic
+                                style={{
+                                    background: "#E0FF00",
+                                    color: "#000000",
+                                    padding: "8px 16px",
+                                    borderRadius: "8px",
+                                    border: "1px solid rgba(224, 255, 0, 0.2)",
+                                    fontSize: "16px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                    transition: "all 0.3s ease",
+                                    boxShadow: "0 0 15px rgba(224, 255, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    backdropFilter: "blur(4px)"
+                                }}
+                            />
+                        ) : (
+                            <WalletMultiButtonDynamic
+                                style={{
+                                    backgroundColor: "#E0FF00",
+                                    color: "#000000",
+                                    padding: "8px 16px",
+                                    borderRadius: "8px",
+                                    border: "1px solid rgba(224, 255, 0, 0.2)",
+                                    fontSize: "16px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                    transition: "all 0.2s ease",
+                                    boxShadow: "0 4px 6px rgba(224, 255, 0, 0.2)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                }}
+                            />
+                        )}
                     </div>
                 </div>
             </div>
