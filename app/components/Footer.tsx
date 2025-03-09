@@ -24,7 +24,7 @@ export default function Footer() {
               <div className="mr-2 w-8 h-8 rounded-md bg-[#E0FF00] flex items-center justify-center text-gray-900 text-xs">
                 AI
               </div>
-              Conviction<span className="text-3xl">AI</span>
+              TheGood<span className="text-3xl">Place</span>
             </span>
           </motion.div>
 
@@ -60,7 +60,7 @@ export default function Footer() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="text-center text-gray-400 text-sm mt-6 border-t border-gray-700 pt-4"
         >
-          <p>© 2025 ConvictionAI. All rights reserved.</p>
+          <p>© 2025 TheGoodPlace. All rights reserved.</p>
         </motion.div>
       </div>
     </footer>

@@ -8,25 +8,25 @@ export default function Partner() {
     {
       name: "Sarah Chen",
       role: "Founder, SupplyChainX",
-      quote: "ConvictionAI helped me validate my supply chain optimization idea before writing a single line of code. The evidence it helped me gather convinced my first investors.",
+      quote: "TheGoodPlace helped me validate my supply chain optimization idea before writing a single line of code. The evidence it helped me gather convinced my first investors.",
       image: "/founder2.jpeg"
     },
     {
       name: "Michael Rodriguez",
       role: "Founder, HealthTech Solutions",
-      quote: "I was about to build an app nobody wanted. ConvictionAI forced me to focus on real customer pain points and build evidence for my solution first.",
+      quote: "I was about to build an app nobody wanted. TheGoodPlace forced me to focus on real customer pain points and build evidence for my solution first.",
       image: "/patrick.jpeg"
     },
     {
       name: "Aisha Patel",
       role: "Founder, EduLearn",
-      quote: "The focused direction ConvictionAI provided helped me channel my energy into validating my edtech idea with real teachers before spending resources on development.",
+      quote: "The focused direction TheGoodPlace provided helped me channel my energy into validating my edtech idea with real teachers before spending resources on development.",
       image: "/founder3.jpeg"
     },
     {
       name: "David Kim",
       role: "Founder, ClimateTech",
-      quote: "ConvictionAI helped me build unwavering belief in my sustainability platform by focusing on evidence and validation first. It changed my entire approach to building.",
+      quote: "TheGoodPlace helped me build unwavering belief in my sustainability platform by focusing on evidence and validation first. It changed my entire approach to building.",
       image: "/founder4.jpeg"
     }
   ]
@@ -52,7 +52,7 @@ export default function Partner() {
             </span>
           </h2>
           <p className="text-gray-300 max-w-2xl mx-auto">
-            See how founders used ConvictionAI to validate their ideas and build unwavering belief in their vision.
+            See how founders used TheGoodPlace to validate their ideas and build unwavering belief in their vision.
           </p>
         </motion.div>
 

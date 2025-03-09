@@ -91,7 +91,7 @@ export default function Landing() {
             </span>
           </h1>
           <p className="text-gray-300 text-lg md:text-xl max-w-3xl mb-8">
-            ConvictionAI is the AI agent that helps founders build unwavering belief in their ideas,
+            TheGoodPlace is the AI agent that helps founders build unwavering belief in their ideas,
             gather evidence, and validate demand before building their MVP.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
@@ -123,7 +123,7 @@ export default function Landing() {
             <div className="w-full aspect-video rounded-xl overflow-hidden shadow-inner">
               <Image 
                 src="/landing.jpeg" 
-                alt="ConvictionAI Landing" 
+                alt="TheGoodPlace Landing" 
                 width={1200} 
                 height={675}
                 className="w-full h-full object-cover"
@@ -177,7 +177,7 @@ export default function Landing() {
           </h2>
           <p className="text-gray-300 text-lg max-w-3xl mx-auto mb-8">
             Over 80% of startups fail because they build products nobody wants. 
-            ConvictionAI helps you validate before you build.
+            TheGoodPlace helps you validate before you build.
           </p>
           <div className="flex flex-wrap justify-center gap-8 max-w-4xl mx-auto">
             {[1, 2, 3, 4, 5].map((i) => (

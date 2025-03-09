@@ -46,7 +46,7 @@ export default function NavBar() {
                             <div className="mr-2 w-8 h-8 rounded-md bg-[#E0FF00] flex items-center justify-center text-gray-900 text-xs">
                                 AI
                             </div>
-                            Conviction<span className="text-3xl">AI</span>
+                            TheGood<span className="text-3xl">Place</span>
                         </span>
                     </Link>
 

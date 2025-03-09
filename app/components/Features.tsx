@@ -55,7 +55,7 @@ export default function Features() {
     },
     {
       title: "Conviction Building",
-      description: "Transform uncertainty into unwavering belief. ConvictionAI helps founders develop the superhuman focus needed to persevere through challenges by building evidence-based confidence.",
+      description: "Transform uncertainty into unwavering belief. TheGoodPlace helps founders develop the superhuman focus needed to persevere through challenges by building evidence-based confidence.",
       image: "/voting.jpeg"
     },
     {

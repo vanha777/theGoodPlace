@@ -1,106 +1,182 @@
 {
-  "personalInfo": {
-    "name": {
-      "firstName": "John",
-      "lastName": "Doe",
-      "preferredName": "Johnny"
+    "personalInfo": {
+        "name": {
+            "firstName": "Hoang",
+            "lastName": "Truong",
+            "preferredName": "Hoang"
+        },
+        "dateOfBirth": "1990-05-15",
+        "dateOfPassing": "2023-08-12",
+        "gender": "Male",
+        "contact": {
+            "email": "john.doe@email.com",
+            "phone": "+1-555-123-4567"
+        },
+        "residence": {
+            "street": "222/6 Bui Dinh Tuy Street",
+            "city": "Ho Chi Minh",
+            "state": "Binh Thanh",
+            "country": "Vietnam",
+            "postalCode": "700000"
+        }
     },
-    "dateOfBirth": "1990-05-15",
-    "gender": "Male",
-    "contact": {
-      "email": "john.doe@email.com",
-      "phone": "+1-555-123-4567"
+    "traits": {
+        "personality": {
+            "mbti": "ENTJ",
+            //       INFJ: The Advocate
+            // INFP: The Mediator
+            // INTJ: The Architect
+            // INTP: The Thinker
+            // ISFJ: The Defender
+            // ISFP: The Artist
+            // ISTJ: The Logistician
+            // ISTP: The Virtuoso
+            // ENFJ: The Protagonist
+            // ENFP: The Campaigner
+            // ENTJ: The Commander
+            // ENTP: The Debater
+            // ESFJ: The Consul
+            // ESFP: The Entertainer
+            // ESTJ: The Executive
+            // ESTP: The Entrepreneur
+            "strengths": [
+                "Sacartistic",
+                "Determined",
+                "Unpredictable",
+                "Unorganized",
+                "Hot-headed",
+                "Aggressive",
+                "Self-centered",
+                "Self-absorbed",
+                "Self-important"
+            ],
+            "challenges": [
+                "Overthinking",
+                "Overly emotional",
+                "Overly sensitive",
+                "Overly dramatic"
+            ]
+        },
+        "interests": [
+            "Photography",
+            "Souverneignity",
+            "Singing",
+            "Online Chatting",
+            "Shoppe",
+            "Online Shopping"
+        ],
+        "values": [
+            "Respect",
+            "Food",
+            "Entertainment",
+        ],
+        "mannerisms": [
+            "Often used the phrase 'ủa vậy à...'",
+            "Laughed sarcastically before saying :'biết ngay mà'",
+        ]
     },
-    "residence": {
-      "street": "123 Main Street",
-      "city": "San Francisco",
-      "state": "CA",
-      "country": "USA",
-      "postalCode": "94105"
+    "favorites": {
+        "colors": [
+            "Blue",
+            "Forest green"
+        ],
+        "foods": [
+            "Vietnamese cuisine",
+            "Japanese cuisine",
+        ],
+        "movies": [
+            "The Shawshank Redemption",
+            "Inception",
+            "The Grand Budapest Hotel"
+        ],
+        "books": [
+            "1984",
+            "The Alchemist",
+            "Dune"
+        ],
+        "music": {
+            "genres": [
+                "Jazz",
+                "Classical",
+                "Alternative rock"
+            ],
+            "artists": [
+                "Miles Davis",
+                "Beethoven",
+                "Radiohead"
+            ]
+        }
+    },
+    "education": {
+        "degree": "Master's in Computer Science",
+        "university": "Stanford University",
+        "graduationYear": 2015
+    },
+    "career": {
+        "currentPosition": "Senior Software Engineer",
+        "company": "Tech Innovations Inc.",
+        "yearsOfExperience": 8,
+        "skills": [
+            "JavaScript",
+            "Python",
+            "Cloud Architecture",
+            "System Design"
+        ]
+    },
+    "languages": [
+        {
+            "name": "Vietnamese",
+            "proficiency": "Native"
+        }
+    ],
+    "memories": {
+        "significantEvents": [
+            "Our wedding day in Napa Valley, 2015",
+            "The birth of our daughter Yen in 2018",
+            "That summer road trip along the Pacific Coast Highway",
+            "When we got caught in the rainstorm at the music festival"
+        ],
+        "sharedExperiences": [
+            "Our Sunday morning coffee ritual on the porch",
+            "Weekly game nights with the Johnsons",
+            "Our first apartment together with the broken heater",
+            "Teaching each other our favorite hobbies"
+        ],
+        "familyMembers": [
+            "Emma - our daughter",
+            "Mom (Sarah) and Dad (Robert)",
+            "Your parents, who I grew to love like my own",
+            "My brother Michael and his family"
+        ],
+        "personalStories": [
+            "The time I got lost hiking and ended up discovering that beautiful waterfall",
+            "How I learned to cook from my grandmother",
+            "My first job interview disaster that actually led to my career",
+            "The childhood dog that inspired my love of animals"
+        ]
+    },
+    "relationships": {
+        "family": [
+            {
+                "name": "Bơ",
+                "relation": "Son",
+                "details": "Born October 10, 1996. He is a very dedicate and hard working. He's the only one who i can rely on doing anything. I'm always being tough."
+            },
+            {
+                "name": "Sarah",
+                "relation": "Mother",
+                "details": "Always supportive of my creative pursuits. Taught me to bake those cookies you love."
+            }
+        ],
+        "friends": [
+            {
+                "name": "David",
+                "details": "My college roommate. We stayed close all these years. He was the best man at our wedding."
+            },
+            {
+                "name": "Jennifer",
+                "details": "We worked together at Tech Innovations. She introduced us at that company party, remember?"
+            }
+        ]
     }
-  },
-  "traits": {
-    "personality": {
-      "mbti": "INFJ",
-      "strengths": [
-        "Empathetic",
-        "Creative",
-        "Determined",
-        "Organized"
-      ],
-      "challenges": [
-        "Perfectionist",
-        "Overthinking"
-      ]
-    },
-    "interests": [
-      "Photography",
-      "Mountain hiking",
-      "Classical music",
-      "Cooking"
-    ]
-  },
-  "favorites": {
-    "colors": [
-      "Blue",
-      "Forest green"
-    ],
-    "foods": [
-      "Italian cuisine",
-      "Sushi",
-      "Dark chocolate"
-    ],
-    "movies": [
-      "The Shawshank Redemption",
-      "Inception",
-      "The Grand Budapest Hotel"
-    ],
-    "books": [
-      "1984",
-      "The Alchemist",
-      "Dune"
-    ],
-    "music": {
-      "genres": [
-        "Jazz",
-        "Classical",
-        "Alternative rock"
-      ],
-      "artists": [
-        "Miles Davis",
-        "Beethoven",
-        "Radiohead"
-      ]
-    }
-  },
-  "education": {
-    "degree": "Master's in Computer Science",
-    "university": "Stanford University",
-    "graduationYear": 2015
-  },
-  "career": {
-    "currentPosition": "Senior Software Engineer",
-    "company": "Tech Innovations Inc.",
-    "yearsOfExperience": 8,
-    "skills": [
-      "JavaScript",
-      "Python",
-      "Cloud Architecture",
-      "System Design"
-    ]
-  },
-  "languages": [
-    {
-      "name": "English",
-      "proficiency": "Native"
-    },
-    {
-      "name": "Spanish",
-      "proficiency": "Intermediate"
-    },
-    {
-      "name": "Mandarin",
-      "proficiency": "Basic"
-    }
-  ]
 }

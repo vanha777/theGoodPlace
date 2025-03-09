@@ -1,6 +1,8 @@
 import React, { FC, ReactNode, useMemo } from "react";
 import { ConnectionProvider, WalletProvider } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
+import { NightlyConnectAdapter } from '@nightlylabs/wallet-selector-solana'
+import { UnsafeBurnerWalletAdapter } from '@solana/wallet-adapter-wallets'
 import {
   NightlyWalletAdapter
 } from "@solana/wallet-adapter-wallets";
@@ -16,7 +18,19 @@ export const WalletConnectionProvider: FC<{ children: ReactNode }> = ({ children
   // Set up wallet adapters
   const wallets = useMemo(
     () => [
-      new NightlyWalletAdapter(),
+      new UnsafeBurnerWalletAdapter(), NightlyConnectAdapter.buildLazy(
+        {
+          appMetadata: {
+            name: 'SolanaAdapter',
+            description: 'Solana Adapter Test',
+            icon: 'https://docs.nightly.app/img/logo.png',
+            additionalInfo: 'Courtesy of Nightly Connect team'
+          }
+          //   persistent: false  -  Add this if you want to make the session non-persistent
+        }
+        // { initOnConnect: true, disableModal: true, disableEagerConnect: true }  -  You may specify the connection options object here
+        // document.getElementById("modalAnchor")  -  You can pass an optional anchor element for the modal here
+      )
     ],
     []
   );

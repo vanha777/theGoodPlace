@@ -8,9 +8,7 @@ type Message = {
 }
 
 export default function ChatSimulator() {
-  const [messages, setMessages] = useState<Message[]>([
-    { role: 'assistant', content: 'Hi there! I\'m ConvictionAI. How can I help you build founder conviction today?' }
-  ])
+  const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -26,13 +24,13 @@ export default function ChatSimulator() {
   }, []);
 
   // Sample responses for simulation
-  const sampleResponses = [
-    "That's a great question about founder conviction. The key is to validate your assumptions early and often.",
-    "I'd recommend starting with customer interviews to validate your problem hypothesis before building anything.",
-    "Market sizing is crucial. Let's break down your TAM, SAM, and SOM to understand the opportunity better.",
-    "Have you considered testing this hypothesis with a simple landing page first? It could save you months of development.",
-    "Your idea has potential, but I'd suggest narrowing your focus to a more specific customer segment initially."
-  ]
+  // const sampleResponses = [
+  //   "That's a great question about founder conviction. The key is to validate your assumptions early and often.",
+  //   "I'd recommend starting with customer interviews to validate your problem hypothesis before building anything.",
+  //   "Market sizing is crucial. Let's break down your TAM, SAM, and SOM to understand the opportunity better.",
+  //   "Have you considered testing this hypothesis with a simple landing page first? It could save you months of development.",
+  //   "Your idea has potential, but I'd suggest narrowing your focus to a more specific customer segment initially."
+  // ]
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -72,7 +70,7 @@ export default function ChatSimulator() {
   return (
     <div className=" relative w-full max-w-2xl mx-auto bg-gray-900 rounded-xl overflow-hidden shadow-xl border border-gray-800 z-50">
       <div className="p-4 bg-gray-800 border-b border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-100">ConvictionAI Chat</h2>
+        <h2 className="text-xl font-semibold text-gray-100">TheGoodPlacce Chat</h2>
       </div>
       
       {/* Chat messages */}
@@ -114,7 +112,7 @@ export default function ChatSimulator() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask ConvictionAI something..."
+            placeholder="Ask TheGoodPlacce something..."
             className="flex-1 bg-gray-700 text-gray-100 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button

@@ -115,7 +115,7 @@ export default function Starters() {
         <div className="mt-32 grid grid-cols-1 max-w-7xl mx-auto">
           <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-3xl p-8 border border-gray-200 hover:border-blue-400 shadow-sm flex flex-col items-center justify-center text-center h-fit">
             <h3 className="text-2xl font-bold mb-4 text-gray-800">Ready to build your conviction?</h3>
-            <p className="text-gray-600 mb-6 max-w-2xl">Get started with ConvictionAI today and transform your idea into a validated concept with evidence that convinces investors, partners, and yourself.</p>
+            <p className="text-gray-600 mb-6 max-w-2xl">Get started with TheGoodPlace today and transform your idea into a validated concept with evidence that convinces investors, partners, and yourself.</p>
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

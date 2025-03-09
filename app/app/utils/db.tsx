@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js'
 import { ChatOpenAI } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { LLMChain } from "langchain/chains";
-
+import OpenAI from "openai";
 // Replace with your Supabase project URL and Anon key
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -140,6 +140,27 @@ interface PersonalityType {
       details: string;
     }>;
   };
+}
+
+// Fetch personality from URL with fallback to default
+export async function fetchPersonality(url: string): Promise<PersonalityType> {
+  try {
+    // URL to fetch personality data from
+    const personalityUrl = url || 'https://your-default-url.com/personality.json';
+    
+    const response = await fetch(personalityUrl);
+    if (!response.ok) {
+      console.warn(`Failed to fetch personality data: ${response.status} ${response.statusText}`);
+      return defaultPersonality;
+    }
+    
+    const personalityData = await response.json();
+    console.log("response", personalityData);
+    return personalityData as PersonalityType;
+  } catch (error) {
+    console.error('Error fetching personality data:', error);
+    return defaultPersonality;
+  }
 }
 
 // Default personality to use if fetching fails
@@ -331,16 +352,16 @@ export default async function processCommand(transcript: string): Promise<string
   if (!transcript.trim()) return "";
 
   try {
-    // Initialize with default personality
-    let personality = defaultPersonality;
+    // Fetch personality data from URL instead of using default directly
+    let personality = await fetchPersonality("https://vbfejmafjqgcfrzxewcd.supabase.co/storage/v1/object/public/general//boHoang.json");
 
     // Initialize OpenAI model through LangChain
-    const model = new ChatOpenAI({
-      temperature: 0.2, // Increased for more creative/varied responses
-      modelName: 'gpt-4o-mini',
-      openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-    });
-
+    // const model = new ChatOpenAI({
+    //   temperature: 0.2, // Increased for more creative/varied responses
+    //   modelName: 'gpt-4o-mini',
+    //   openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+    // });
+  
     // Format personality data for the prompt
     const name = personality.personalInfo.name.preferredName;
     const dateOfPassing = personality.personalInfo.dateOfPassing;
@@ -412,21 +433,45 @@ export default async function processCommand(transcript: string): Promise<string
       inputVariables: ["text"],
     });
 
-    // Create a chain with the model and prompt template
-    const chain = new LLMChain({
-      llm: model,
-      prompt: promptTemplate,
+    const client = new OpenAI({
+      apiKey: process.env.NEXT_PUBLIC_XAI_API_KEY,
+      dangerouslyAllowBrowser: true,
+      baseURL: "https://api.x.ai/v1",
+    });
+    const formattedPrompt = await promptTemplate.format({ text: transcript });
+    const response = await client.chat.completions.create({
+      model: "grok-2-1212",
+      messages: [
+        {
+          role: "system",
+          content: formattedPrompt,
+        },
+        {
+          role: "user",
+          content: transcript,
+        },
+      ],
     });
 
+
+    // Create a chain with the model and prompt template
+    // const chain = new LLMChain({
+    //   llm: model,
+    //   prompt: promptTemplate,
+    // });
+
     // Execute the chain with the transcript as input
-    const response = await chain.call({
-      text: transcript,
-    });
+    // const response = await chain.call({
+    //   text: transcript,
+    // });
 
     console.log("response", response);
 
     // Return the response text directly
-    return response.text ?? "";
+    // return response.text ?? "";
+
+    // Access the response content correctly
+    return response.choices[0]?.message?.content ?? "";
   } catch (error) {
     console.error('Error processing command:', error);
     return "I'm having a moment where I can't quite find the right words. Let's try again in a bit, okay?";
