@@ -13,6 +13,7 @@ import WhatNew from '@/components/whatNew'
 import Footer from '@/components/Footer'
 import Landing from '@/components/Landing'
 import Head from 'next/head'
+import ChatSimulator from '@/components/ChatSimulator'
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false)
@@ -43,10 +44,13 @@ export default function Home() {
         </div>
         <NavBar />
         <Landing />
-        {/* <Features /> */}
         <Partner />
-        {/* <Starters /> */}
+        <ChatSimulator />
         <Footer />
+
+        {/* <Features /> */}
+        {/* <Starters /> */}
+
       </main>
     </Suspense>
   )
