@@ -5,6 +5,16 @@ import { expect } from "chai";
 import { PublicKey, Keypair, SystemProgram } from "@solana/web3.js";
 
 describe("the-good-place", () => {
+  const sender = anchor.web3.Keypair.fromSecretKey(
+    Uint8Array.from(
+      JSON.parse(
+        require('fs').readFileSync(
+          require('os').homedir() + '/metaloot-keypair.json',
+          'utf-8'
+        )
+      )
+    )
+  );
   // Configure the client to use the local cluster.
   anchor.setProvider(anchor.AnchorProvider.env());
 
@@ -23,16 +33,14 @@ describe("the-good-place", () => {
   it("Can create a new person", async () => {
     // Example test for creating an entry in your program
     // Replace with actual functionality from your program
-    const authority = Keypair.generate();
     const entrySeed = Keypair.generate();
-
     const tx = await program.methods
-      .createPerson("Person 1", "https://example.com/person1", authority.publicKey)
+      .createPerson("Person 1", "https://example.com/person1", sender.publicKey)
       .accounts({
         entrySeed: entrySeed.publicKey,
         systemProgram: SystemProgram.programId,
       })
-      .signers([authority])
+      .signers([sender])
       .rpc();
 
     console.log("Create entry transaction signature", tx);
@@ -44,22 +52,21 @@ describe("the-good-place", () => {
     )[0]);
     expect(account.name).to.equal("Person 1");
     expect(account.uri).to.equal("https://example.com/person1");
-    expect(account.authority.toString()).to.equal(authority.publicKey.toString());
+    expect(account.authority.toString()).to.equal(sender.publicKey.toString());
   });
 
   it("Can update an existing person", async () => {
     // Example test for updating an entry
     // First create an entry to update
-    const authority = Keypair.generate();
     const entrySeed = Keypair.generate();
 
     await program.methods
-      .createPerson("Person 2", "https://example.com/person2", authority.publicKey)
+      .createPerson("Person 2", "https://example.com/person2", sender.publicKey)
       .accounts({
         entrySeed: entrySeed.publicKey,
         systemProgram: SystemProgram.programId,
       })
-      .signers([authority])
+      .signers([sender])
       .rpc();
 
     // Now update it
@@ -68,7 +75,7 @@ describe("the-good-place", () => {
       .accounts({
         entrySeed: entrySeed.publicKey,
       })
-      .signers([authority])
+      .signers([sender])
       .rpc();
 
     console.log("Update entry transaction signature", tx);
@@ -84,16 +91,15 @@ describe("the-good-place", () => {
 
   it("Fails when unauthorized user tries to update", async () => {
     // Create an entry
-    const authority = Keypair.generate();
     const entrySeed = Keypair.generate();
 
     await program.methods
-      .createPerson("Test entry", "https://example.com/testentry", authority.publicKey)
+      .createPerson("Test entry", "https://example.com/testentry", sender.publicKey)
       .accounts({
         entrySeed: entrySeed.publicKey,
         systemProgram: SystemProgram.programId,
       })
-      .signers([authority])
+      .signers([sender])
       .rpc();
 
     // Create a new user
