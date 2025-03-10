@@ -8,6 +8,7 @@ import { PublicKey, Keypair, SystemProgram, Transaction, VersionedTransaction } 
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
 import * as anchor from "@coral-xyz/anchor";
 import { sha256 } from 'js-sha256';
+import { createHash } from 'crypto';
 type Message = {
   role: 'user' | 'assistant'
   content: string
@@ -77,27 +78,32 @@ export default function ChatSimulator() {
 
   const createPerson = async () => {
     console.log("create person 0");
-  
+
     const personName = "John Doe";
+    const password = "John Doe";
     const personUri = "https://vbfejmafjqgcfrzxewcd.supabase.co/storage/v1/object/public/general/boHoang.json";
     const programID = new PublicKey(idl.address);
-  
+    // Generate a deterministic keypair from a seed
+    const seed = Uint8Array.from(
+      createHash("sha256").update(password).digest()
+    ); // 32 bytes guaranteed
+    const entrySeed = Keypair.fromSeed(seed);
     // Generate a random Keypair for entrySeed
-    const entrySeed = Keypair.generate();
-  
+    // const entrySeed = Keypair.generate();
+
     console.log("create person 1");
     if (!connected || !publicKey || !wallet) {
       alert("Please connect your wallet first");
       return;
     }
     console.log("create person 2");
-  
+
     try {
       console.log("create person 3");
-  
+
       // Ensure publicKey is a PublicKey instance
       const walletPublicKey = new PublicKey(publicKey); // Convert if necessary
-  
+
       // Create a wallet object compatible with AnchorProvider
       const customWallet = {
         publicKey: walletPublicKey,
@@ -110,19 +116,19 @@ export default function ChatSimulator() {
           return signAllTransactions(txs) as Promise<T[]>;
         },
       };
-  
+
       const provider = new AnchorProvider(
         connection,
         customWallet,
         { preflightCommitment: "processed" }
       );
       console.log("create person 4");
-  
+
       const program = new Program(idl as any, provider); // Use 'any' temporarily if IDL type issues persist
-  
+
       // Pass authority as a PublicKey, not a string, if required by the program
       const authority = walletPublicKey;
-  
+
       const tx = await program.methods
         .createPerson(personName, personUri, authority)
         .accounts({
@@ -131,12 +137,80 @@ export default function ChatSimulator() {
         })
         // .signers([entrySeed])
         .rpc();
-  
+
       console.log("create person 5");
       console.log("Transaction signature:", tx);
       alert("Person created successfully!");
     } catch (error) {
       console.error("Error creating person:", error);
+      alert(`Error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
+
+  const updatePerson = async () => {
+    console.log("update person 0");
+    const password = "John Doe";
+    const personName = "John Doe 2";
+    const personUri = "https://vbfejmafjqgcfrzxewcd.supabase.co/storage/v1/object/public/general/boHoang.json";
+    const programID = new PublicKey(idl.address);
+    const seed = Uint8Array.from(
+      createHash("sha256").update(password).digest()
+    ); // 32 bytes guaranteed
+    const entrySeed = Keypair.fromSeed(seed);
+    // Generate a random Keypair for entrySeed
+    // const entrySeed = Keypair.generate();
+
+    console.log("update person 1");
+    if (!connected || !publicKey || !wallet) {
+      alert("Please connect your wallet first");
+      return;
+    }
+    console.log("update person 2");
+
+    try {
+      console.log("update person 3");
+
+      // Ensure publicKey is a PublicKey instance
+      const walletPublicKey = new PublicKey(publicKey); // Convert if necessary
+
+      // Create a wallet object compatible with AnchorProvider
+      const customWallet = {
+        publicKey: walletPublicKey,
+        signTransaction: async <T extends Transaction | VersionedTransaction>(tx: T): Promise<T> => {
+          if (!signTransaction) throw new Error("Wallet not connected");
+          return signTransaction(tx) as Promise<T>;
+        },
+        signAllTransactions: async <T extends Transaction | VersionedTransaction>(txs: T[]): Promise<T[]> => {
+          if (!signAllTransactions) throw new Error("Wallet not connected");
+          return signAllTransactions(txs) as Promise<T[]>;
+        },
+      };
+
+      const provider = new AnchorProvider(
+        connection,
+        customWallet,
+        { preflightCommitment: "processed" }
+      );
+      console.log("update person 4");
+
+      const program = new Program(idl as any, provider); // Use 'any' temporarily if IDL type issues persist
+
+      // Pass authority as a PublicKey, not a string, if required by the program
+      const authority = walletPublicKey;
+
+      const tx = await program.methods
+        .updatePerson(personName, personUri)
+        .accounts({
+          entrySeed: entrySeed.publicKey,
+        })
+        // .signers([entrySeed])
+        .rpc();
+
+      console.log("update person 5");
+      console.log("Transaction signature:", tx);
+      alert("Person updated successfully!");
+    } catch (error) {
+      console.error("Error updating person:", error);
       alert(`Error: ${error instanceof Error ? error.message : String(error)}`);
     }
   };
@@ -152,7 +226,7 @@ export default function ChatSimulator() {
         Create Person
       </button>
       <button
-        // onClick={createPerson}
+        onClick={updatePerson}
         disabled={isLoading}
         className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
       >
