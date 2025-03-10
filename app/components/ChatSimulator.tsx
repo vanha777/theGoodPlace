@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import processCommand from '@/app/utils/db'
 import idl from "../../target/idl/the_good_place.json";
 import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react"
-import { PublicKey, Keypair, SystemProgram, Transaction } from "@solana/web3.js";
+import { PublicKey, Keypair, SystemProgram, Transaction, VersionedTransaction } from "@solana/web3.js";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
 import * as anchor from "@coral-xyz/anchor";
 import { sha256 } from 'js-sha256';
@@ -74,6 +74,7 @@ export default function ChatSimulator() {
       setIsLoading(false)
     }
   }
+
   const createPerson = async () => {
     console.log("create person 0");
   
@@ -100,11 +101,11 @@ export default function ChatSimulator() {
       // Create a wallet object compatible with AnchorProvider
       const customWallet = {
         publicKey: walletPublicKey,
-        signTransaction: async <T extends Transaction>(tx: T): Promise<T> => {
+        signTransaction: async <T extends Transaction | VersionedTransaction>(tx: T): Promise<T> => {
           if (!signTransaction) throw new Error("Wallet not connected");
           return signTransaction(tx) as Promise<T>;
         },
-        signAllTransactions: async <T extends Transaction>(txs: T[]): Promise<T[]> => {
+        signAllTransactions: async <T extends Transaction | VersionedTransaction>(txs: T[]): Promise<T[]> => {
           if (!signAllTransactions) throw new Error("Wallet not connected");
           return signAllTransactions(txs) as Promise<T[]>;
         },
@@ -117,10 +118,10 @@ export default function ChatSimulator() {
       );
       console.log("create person 4");
   
-      const program = new Program(idl as anchor.Idl, provider);
+      const program = new Program(idl as any, provider); // Use 'any' temporarily if IDL type issues persist
   
       // Pass authority as a PublicKey, not a string, if required by the program
-      const authority = walletPublicKey; // Use PublicKey directly instead of toBase58()
+      const authority = walletPublicKey;
   
       const tx = await program.methods
         .createPerson(personName, personUri, authority)
@@ -128,7 +129,7 @@ export default function ChatSimulator() {
           entrySeed: entrySeed.publicKey,
           systemProgram: SystemProgram.programId,
         })
-        .signers([entrySeed])
+        // .signers([entrySeed])
         .rpc();
   
       console.log("create person 5");
