@@ -22,7 +22,7 @@ type CrystallBallProps = ThreeElements['group'] & {
 export function CrystallBall({ 
   animationName, 
   playing = true, 
-  speed = 0.5, 
+  speed = 0.2, 
   ...props 
 }: CrystallBallProps) {
   const group = useRef<Group>(null!)

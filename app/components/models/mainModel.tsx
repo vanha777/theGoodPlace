@@ -13,7 +13,7 @@ interface CrystallViewerProps {
   const CrystallViewer = ({ 
     animationName = "Animation", 
     playing = true, 
-    speed = 1 
+    speed = 0.2 
   }: CrystallViewerProps) => {
   return (
     <div className="w-full h-[500px]">
