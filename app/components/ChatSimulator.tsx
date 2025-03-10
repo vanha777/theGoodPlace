@@ -2,12 +2,20 @@
 
 import { useState, useRef, useEffect } from 'react'
 import processCommand from '@/app/utils/db'
+import idl from "../../target/idl/the_good_place.json";
+import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react"
+import { PublicKey, Keypair, SystemProgram, Transaction } from "@solana/web3.js";
+import { AnchorProvider, Program } from "@coral-xyz/anchor";
+import * as anchor from "@coral-xyz/anchor";
+import { sha256 } from 'js-sha256';
 type Message = {
   role: 'user' | 'assistant'
   content: string
 }
 
 export default function ChatSimulator() {
+  const { publicKey, connected, connect, disconnect, signMessage, wallet, signTransaction, signAllTransactions } = useWallet();
+  const { connection } = useConnection();
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -16,7 +24,7 @@ export default function ChatSimulator() {
   // Add debugging to check component lifecycle
   useEffect(() => {
     console.log('ChatSimulator mounted');
-    
+
     // Return cleanup function to detect unmounting
     return () => {
       console.log('ChatSimulator unmounted');
@@ -57,35 +65,115 @@ export default function ChatSimulator() {
       setMessages(prev => [...prev, aiMessage])
     } catch (error) {
       console.error('Error processing command:', error)
-      const errorMessage: Message = { 
-        role: 'assistant', 
-        content: 'Sorry, I encountered an error processing your request.' 
+      const errorMessage: Message = {
+        role: 'assistant',
+        content: 'Sorry, I encountered an error processing your request.'
       }
       setMessages(prev => [...prev, errorMessage])
     } finally {
       setIsLoading(false)
     }
   }
+  const createPerson = async () => {
+    console.log("create person 0");
+  
+    const personName = "John Doe";
+    const personUri = "https://vbfejmafjqgcfrzxewcd.supabase.co/storage/v1/object/public/general/boHoang.json";
+    const programID = new PublicKey(idl.address);
+  
+    // Generate a random Keypair for entrySeed
+    const entrySeed = Keypair.generate();
+  
+    console.log("create person 1");
+    if (!connected || !publicKey || !wallet) {
+      alert("Please connect your wallet first");
+      return;
+    }
+    console.log("create person 2");
+  
+    try {
+      console.log("create person 3");
+  
+      // Ensure publicKey is a PublicKey instance
+      const walletPublicKey = new PublicKey(publicKey); // Convert if necessary
+  
+      // Create a wallet object compatible with AnchorProvider
+      const customWallet = {
+        publicKey: walletPublicKey,
+        signTransaction: async <T extends Transaction>(tx: T): Promise<T> => {
+          if (!signTransaction) throw new Error("Wallet not connected");
+          return signTransaction(tx) as Promise<T>;
+        },
+        signAllTransactions: async <T extends Transaction>(txs: T[]): Promise<T[]> => {
+          if (!signAllTransactions) throw new Error("Wallet not connected");
+          return signAllTransactions(txs) as Promise<T[]>;
+        },
+      };
+  
+      const provider = new AnchorProvider(
+        connection,
+        customWallet,
+        { preflightCommitment: "processed" }
+      );
+      console.log("create person 4");
+  
+      const program = new Program(idl as anchor.Idl, provider);
+  
+      // Pass authority as a PublicKey, not a string, if required by the program
+      const authority = walletPublicKey; // Use PublicKey directly instead of toBase58()
+  
+      const tx = await program.methods
+        .createPerson(personName, personUri, authority)
+        .accounts({
+          entrySeed: entrySeed.publicKey,
+          systemProgram: SystemProgram.programId,
+        })
+        .signers([entrySeed])
+        .rpc();
+  
+      console.log("create person 5");
+      console.log("Transaction signature:", tx);
+      alert("Person created successfully!");
+    } catch (error) {
+      console.error("Error creating person:", error);
+      alert(`Error: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  };
 
   return (
     <div className=" relative w-full max-w-2xl mx-auto bg-gray-900 rounded-xl overflow-hidden shadow-xl border border-gray-800 z-50">
+
+      <button
+        onClick={createPerson}
+        disabled={isLoading}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+      >
+        Create Person
+      </button>
+      <button
+        // onClick={createPerson}
+        disabled={isLoading}
+        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+      >
+        Update Person
+      </button>
+
       <div className="p-4 bg-gray-800 border-b border-gray-700">
         <h2 className="text-xl font-semibold text-gray-100">TheGoodPlacce Chat</h2>
       </div>
-      
+
       {/* Chat messages */}
       <div className="h-96 overflow-y-auto p-4 space-y-4">
         {messages.map((message, index) => (
-          <div 
-            key={index} 
+          <div
+            key={index}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
-            <div 
-              className={`max-w-xs md:max-w-md p-3 rounded-lg ${
-                message.role === 'user' 
-                  ? 'bg-blue-600 text-white rounded-br-none' 
-                  : 'bg-gray-700 text-gray-100 rounded-bl-none'
-              }`}
+            <div
+              className={`max-w-xs md:max-w-md p-3 rounded-lg ${message.role === 'user'
+                ? 'bg-blue-600 text-white rounded-br-none'
+                : 'bg-gray-700 text-gray-100 rounded-bl-none'
+                }`}
             >
               {message.content}
             </div>
@@ -104,7 +192,7 @@ export default function ChatSimulator() {
         )}
         <div ref={messagesEndRef} />
       </div>
-      
+
       {/* Input form */}
       <form onSubmit={handleSubmit} className="p-4 border-t border-gray-700 bg-gray-800">
         <div className="flex">

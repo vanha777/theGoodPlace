@@ -8,10 +8,12 @@ skip-lint = false
 the_good_place = "6WQ3EeKJnFj2TbCQPu563WVKhrN5od3VhUZfv66PHiTP"
 
 [registry]
-url = "https://api.testnet.sonic.game "
+# url = "https://api.testnet.sonic.game"
+url = "Localnet"
 
 [provider]
-cluster = "https://api.testnet.sonic.game "
+# cluster = "https://api.testnet.sonic.game"
+cluster = "Localnet"
 wallet = "~/metaloot-keypair.json"
 
 [test]
