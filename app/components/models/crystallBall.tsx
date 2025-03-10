@@ -7,16 +7,57 @@ Title: Piscean Pearl
 */
 "use client";
 
-import React, { useRef } from 'react'
+import React, { useRef, useEffect } from 'react'
 import { useGLTF, useAnimations } from '@react-three/drei'
 import { ThreeElements } from '@react-three/fiber'
 import { Group } from 'three'
+import * as THREE from 'three'
 
-export function CrystallBall(props: ThreeElements['group']) {
+type CrystallBallProps = ThreeElements['group'] & {
+  animationName?: string;
+  playing?: boolean;
+  speed?: number;
+}
+
+export function CrystallBall({ 
+  animationName, 
+  playing = true, 
+  speed = 0.5, 
+  ...props 
+}: CrystallBallProps) {
   const group = useRef<Group>(null!)
   const { nodes, materials, animations } = useGLTF('/piscean_pearl.glb')
-  console.log("animation name" , animations);
   const { actions } = useAnimations(animations, group)
+  
+  // Control animation based on props
+  useEffect(() => {
+    // Log available animations on mount
+    console.log("Available animations:", Object.keys(actions))
+    
+    // If no animations are available, return early
+    if (Object.keys(actions).length === 0) return
+    
+    // Determine which animation to play
+    const currentAnimation = animationName && actions[animationName] 
+      ? actions[animationName] 
+      : actions[Object.keys(actions)[0]]
+    
+    if (playing && currentAnimation) {
+      // Configure and play animation
+      currentAnimation.reset().fadeIn(0.5).play()
+      currentAnimation.setEffectiveTimeScale(speed)
+      currentAnimation.setLoop(THREE.LoopRepeat, Infinity)
+    } else if (currentAnimation) {
+      // Pause or stop animation
+      currentAnimation.fadeOut(0.5)
+    }
+    
+    return () => {
+      // Cleanup
+      Object.values(actions).forEach(action => action?.stop())
+    }
+  }, [actions, animationName, playing, speed])
+  
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Sketchfab_Scene">
