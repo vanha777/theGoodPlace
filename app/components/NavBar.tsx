@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
-import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import dynamic from 'next/dynamic'
 
@@ -12,8 +11,7 @@ import dynamic from 'next/dynamic'
 const WalletMultiButtonDynamic = dynamic(
     () => import('@solana/wallet-adapter-react-ui').then((mod) => mod.WalletMultiButton),
     { ssr: false }
-  )
-  
+)
 
 export default function NavBar() {
     const { publicKey, connected, connect, disconnect, signMessage, wallet } = useWallet();
@@ -32,38 +30,32 @@ export default function NavBar() {
             animate={{ y: 0 }}
             className="top-0 w-full z-50"
         >
-            {/* Background with dark theme */}
-            <div className="absolute inset-0 bg-transparent">
+            {/* Background with light theme matching Landing */}
+            <div className="absolute inset-0 bg-[#f5f9fa] shadow-md">
                 {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-black" />
+                <div className="absolute inset-0 bg-gradient-to-r from-[#00ffe1]/10 via-[#00d9ff]/10 to-[#00a3ff]/10" />
             </div>
 
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
                 <div className="flex justify-between items-center h-16">
                     {/* Logo */}
                     <Link href="/" className="flex items-center gap-2">
-                        <span className="text-2xl font-extrabold tracking-tight text-[#E0FF00] drop-shadow-sm hover:scale-105 transition-transform flex items-center">
-                            <div className="mr-2 w-8 h-8 rounded-md bg-[#E0FF00] flex items-center justify-center text-gray-900 text-xs">
-                                AI
-                            </div>
-                            TheGood<span className="text-3xl">Place</span>
-                        </span>
+                        {/* <div className="w-10 h-10 rounded-md bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] flex items-center justify-center shadow-[0_0_10px_rgba(0,217,255,0.5)] hover:scale-105 transition-transform p-1.5"> */}
+                        <Image
+                            src="/apple.png"
+                            alt="The Good Place Logo"
+                            width={58}
+                            height={58}
+                            className="object-contain"
+                        />
+                        {/* </div> */}
                     </Link>
 
                     {/* Navigation Links */}
                     <div className="hidden md:flex items-center space-x-8">
-                        <span className="text-xl font-serif italic text-[#E0FF00] font-medium">
-                            Don't skip the "V" in "MVP"
+                        <span className="text-xl font-serif italic text-gray-700 font-medium">
+                            Your lovely ones will be remembered
                         </span>
-                        {/* <Link href="#features" className="text-gray-300 hover:text-[#E0FF00] transition-colors">
-                            Features
-                        </Link>
-                        <Link href="#how-it-works" className="text-gray-300 hover:text-[#E0FF00] transition-colors">
-                            How It Works
-                        </Link>
-                        <Link href="#pricing" className="text-gray-300 hover:text-[#E0FF00] transition-colors">
-                            Pricing
-                        </Link> */}
                     </div>
 
                     {/* CTA Button */}
@@ -71,16 +63,17 @@ export default function NavBar() {
                         {wallet ? (
                             <WalletMultiButtonDynamic
                                 style={{
-                                    background: "#E0FF00",
+                                    // background: "linear-gradient(to right, #00ffe1, #00d9ff, #00a3ff)",
+                                    background: "transparent",
                                     color: "#000000",
                                     padding: "8px 16px",
                                     borderRadius: "8px",
-                                    border: "1px solid rgba(224, 255, 0, 0.2)",
+                                    border: "none",
                                     fontSize: "16px",
                                     fontWeight: "600",
                                     cursor: "pointer",
                                     transition: "all 0.3s ease",
-                                    boxShadow: "0 0 15px rgba(224, 255, 0, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1)",
+                                    boxShadow: "0 0 15px rgba(0, 217, 255, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1)",
                                     display: "flex",
                                     alignItems: "center",
                                     gap: "8px",
@@ -90,16 +83,17 @@ export default function NavBar() {
                         ) : (
                             <WalletMultiButtonDynamic
                                 style={{
-                                    backgroundColor: "#E0FF00",
+                                    // background: "linear-gradient(to right, #00ffe1, #00d9ff, #00a3ff)",
+                                    background: "transparent",
                                     color: "#000000",
                                     padding: "8px 16px",
                                     borderRadius: "8px",
-                                    border: "1px solid rgba(224, 255, 0, 0.2)",
+                                    border: "none",
                                     fontSize: "16px",
                                     fontWeight: "600",
                                     cursor: "pointer",
                                     transition: "all 0.2s ease",
-                                    boxShadow: "0 4px 6px rgba(224, 255, 0, 0.2)",
+                                    boxShadow: "0 4px 6px rgba(0, 217, 255, 0.2)",
                                     display: "flex",
                                     alignItems: "center",
                                     gap: "8px",

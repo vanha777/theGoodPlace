@@ -35,8 +35,8 @@ export default function Partner() {
     <section className="bg-black via-gray-800 to-gray-900 relative overflow-hidden py-24">
       {/* Background blurs similar to footer */}
       <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-[#E0FF00] rounded-full filter blur-[120px] opacity-10" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-[#E0FF00] rounded-full filter blur-[120px] opacity-10" />
+        <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-r from-[#00ffe1] to-[#00a3ff] rounded-full filter blur-[120px] opacity-10" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-gradient-to-r from-[#00ffe1] to-[#00a3ff] rounded-full filter blur-[120px] opacity-10" />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
@@ -47,7 +47,7 @@ export default function Partner() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            <span className="text-[#E0FF00]">
+            <span className="bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] bg-clip-text text-transparent">
               Founders Who Built With Conviction
             </span>
           </h2>
@@ -77,7 +77,7 @@ export default function Partner() {
                 <div>
                   <p className="text-gray-300 italic mb-4">"{testimonial.quote}"</p>
                   <div>
-                    <h3 className="font-medium text-[#E0FF00]">{testimonial.name}</h3>
+                    <h3 className="font-medium bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] bg-clip-text text-transparent">{testimonial.name}</h3>
                     <p className="text-sm text-gray-400">{testimonial.role}</p>
                   </div>
                 </div>
@@ -98,7 +98,7 @@ export default function Partner() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="px-8 py-3 bg-[#E0FF00] text-gray-900 font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+            className="px-8 py-3 bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] text-gray-900 font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
           >
             Start Building Conviction
           </motion.button>
