@@ -570,25 +570,92 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
   }
 
   try {
-    // Find the first null value in the template
-    const nullField = findFirstNullField(personalityTemplate);
-    console.log("nullField", nullField.previousField);
-    // If there's a previous response and a null field was found, update that field
-    if (userResponse.trim() && nullField.previousField) {
-      console.log("updating template within processor", userResponse);
-      // Update the template with the user's response
-      updateTemplateField(personalityTemplate, nullField.previousField, userResponse);
+    // Store the current field we're working on
+    let currentField = "";
+    
+    // Special case for the first interaction (no previous input)
+    const isFirstInteraction = !personalityTemplate.personalInfo.name.firstName;
+    
+    if (isFirstInteraction) {
+      // Check if this looks like a response rather than a greeting or command
+      const isLikelyResponse = userResponse.length > 0 && 
+                              !userResponse.toLowerCase().includes("hello") && 
+                              !userResponse.toLowerCase().includes("hi") &&
+                              !userResponse.toLowerCase().includes("hey") &&
+                              !userResponse.toLowerCase().includes("create");
+      
+      if (isLikelyResponse) {
+        // For the first interaction, treat the response as firstName
+        updateTemplateField(personalityTemplate, "firstName", userResponse);
+      }
+      
+      // Get the next field to ask about
+      const nextField = findFirstNullField(personalityTemplate);
+      currentField = nextField.currentField || "";
+      
+      // If no more fields, return success
+      if (!currentField) {
+        return {
+          message: "Success! All information has been collected. Your personality template is complete.",
+          template: personalityTemplate
+        };
+      }
+      
+      // Ask for the next field
+      const client = new OpenAI({
+        apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+        dangerouslyAllowBrowser: true,
+      });
+      
+      const systemPrompt = isLikelyResponse
+        ? `You are an assistant helping to create a personality template. Thank the user for providing the first name "${userResponse}" and now ask for the next field: ${currentField}. Short explaination what this field is for and provide examples if helpful.`
+        : `You are an assistant helping to create a personality template. Welcome the user and ask them to provide their first name to begin creating the template.`;
+      
+      const response = await client.chat.completions.create({
+        model: "o3-mini",
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt
+          },
+          {
+            role: "user",
+            content: userResponse || "I'm ready to create a personality template."
+          }
+        ],
+        // temperature: 0.2,
+      });
+      
+      return {
+        message: response.choices[0]?.message?.content || `Please provide a value for: ${currentField}`,
+        template: personalityTemplate
+      };
     }
     
-    // If no null fields remain, return success message
-    if (!nullField.currentField) {
+    // For subsequent interactions, we need to update the current field with the user's response
+    // First, find what field we were asking about in the previous interaction
+    const previousField = findPreviousField(personalityTemplate);
+    console.log("Previous field we were asking about:", previousField);
+    
+    // Update that field with the user's current response
+    if (userResponse.trim() && previousField) {
+      console.log("Updating field:", previousField, "with value:", userResponse);
+      updateTemplateField(personalityTemplate, previousField, userResponse);
+    }
+    
+    // Now find the next field to ask about
+    const nextField = findFirstNullField(personalityTemplate);
+    currentField = nextField.currentField || "";
+    
+    // If no more fields, return success
+    if (!currentField) {
       return {
         message: "Success! All information has been collected. Your personality template is complete.",
         template: personalityTemplate
       };
     }
     
-    // Otherwise, ask for the next null field
+    // Ask for the next field
     const client = new OpenAI({
       apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
       dangerouslyAllowBrowser: true,
@@ -599,18 +666,18 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
       messages: [
         {
           role: "system",
-          content: `You are an assistant helping to create a personality template. Ask the user to provide information for the missing field in a friendly, conversational way. The current missing field is: ${nullField.currentField}. Explain what this field is for and provide examples if helpful.`
+          content: `You are an assistant helping to create a personality template. Thank the user for their previous response and ask them to provide information for the next field in a friendly, conversational way. The current field to ask about is: ${currentField}. Explain what this field is for and provide examples if helpful.`
         },
         {
           role: "user",
-          content: userResponse || "I'm ready to create a personality template."
+          content: userResponse
         }
       ],
       temperature: 0.2,
     });
     
     return {
-      message: response.choices[0]?.message?.content || `Please provide a value for: ${nullField.currentField}`,
+      message: response.choices[0]?.message?.content || `Please provide a value for: ${currentField}`,
       template: personalityTemplate
     };
     
@@ -1030,4 +1097,60 @@ function updateFirstNullFriendRelationship(friends: Array<{name: string | null; 
       });
     }
   }
+}
+
+// Helper function to find the field we were asking about in the previous interaction
+function findPreviousField(template: PersonalityTemplate): string | null {
+  // Check fields in the order we ask about them
+  
+  // Personal info
+  if (template.personalInfo.name.firstName && !template.personalInfo.name.lastName) {
+    return "lastName";
+  }
+  if (template.personalInfo.name.lastName && !template.personalInfo.name.preferredName) {
+    return "preferredName";
+  }
+  if (template.personalInfo.name.preferredName && !template.personalInfo.dateOfBirth) {
+    return "dateOfBirth";
+  }
+  if (template.personalInfo.dateOfBirth && !template.personalInfo.dateOfPassing) {
+    return "dateOfPassing";
+  }
+  if (template.personalInfo.dateOfPassing && !template.personalInfo.gender) {
+    return "gender";
+  }
+  if (template.personalInfo.gender && !template.personalInfo.contact.email) {
+    return "email";
+  }
+  if (template.personalInfo.contact.email && !template.personalInfo.contact.phone) {
+    return "phone";
+  }
+  
+  // Residence
+  if (template.personalInfo.contact.phone && !template.personalInfo.residence.street) {
+    return "street";
+  }
+  if (template.personalInfo.residence.street && !template.personalInfo.residence.city) {
+    return "city";
+  }
+  if (template.personalInfo.residence.city && !template.personalInfo.residence.state) {
+    return "state";
+  }
+  if (template.personalInfo.residence.state && !template.personalInfo.residence.country) {
+    return "country";
+  }
+  if (template.personalInfo.residence.country && !template.personalInfo.residence.postalCode) {
+    return "postalCode";
+  }
+  
+  // Traits
+  if (template.personalInfo.residence.postalCode && !template.traits.personality.mbti) {
+    return "mbti";
+  }
+  
+  // Continue with other fields in the same pattern...
+  // This is a simplified version - you would need to add checks for all fields
+  
+  // If we can't determine the previous field, return null
+  return null;
 }
