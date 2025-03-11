@@ -1,0 +1,130 @@
+{
+    "personalInfo": {
+        "name": {
+            "firstName": null,
+            "lastName": null,
+            "preferredName": null
+        },
+        "dateOfBirth": null,
+        "dateOfPassing": null,
+        "gender": null,
+        "contact": {
+            "email": null,
+            "phone": null
+        },
+        "residence": {
+            "street": null,
+            "city": null,
+            "state": null,
+            "country": null,
+            "postalCode": null
+        }
+    },
+    "traits": {
+        "personality": {
+            "mbti": null,
+            // MBTI types for reference:
+            // INFJ: The Advocate
+            // INFP: The Mediator
+            // INTJ: The Architect
+            // INTP: The Thinker
+            // ISFJ: The Defender
+            // ISFP: The Artist
+            // ISTJ: The Logistician
+            // ISTP: The Virtuoso
+            // ENFJ: The Protagonist
+            // ENFP: The Campaigner
+            // ENTJ: The Commander
+            // ENTP: The Debater
+            // ESFJ: The Consul
+            // ESFP: The Entertainer
+            // ESTJ: The Executive
+            // ESTP: The Entrepreneur
+            "strengths": [
+                null
+            ],
+            "challenges": [
+                null
+            ]
+        },
+        "interests": [
+            null
+        ],
+        "values": [
+            null
+        ],
+        "mannerisms": [
+            null
+        ]
+    },
+    "favorites": {
+        "colors": [
+            null
+        ],
+        "foods": [
+            null
+        ],
+        "movies": [
+            null
+        ],
+        "books": [
+            null
+        ],
+        "music": {
+            "genres": [
+                null
+            ],
+            "artists": [
+                null
+            ]
+        }
+    },
+    "education": {
+        "degree": null,
+        "university": null,
+        "graduationYear": null
+    },
+    "career": {
+        "currentPosition": null,
+        "company": null,
+        "yearsOfExperience": null,
+        "skills": [
+            null
+        ]
+    },
+    "languages": [
+        {
+            "name": null,
+            "proficiency": null
+        }
+    ],
+    "memories": {
+        "significantEvents": [
+            null
+        ],
+        "sharedExperiences": [
+            null
+        ],
+        "familyMembers": [
+            null
+        ],
+        "personalStories": [
+            null
+        ]
+    },
+    "relationships": {
+        "family": [
+            {
+                "name": null,
+                "relation": null,
+                "details": null
+            }
+        ],
+        "friends": [
+            {
+                "name": null,
+                "details": null
+            }
+        ]
+    }
+}

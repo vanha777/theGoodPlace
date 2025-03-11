@@ -7,6 +7,84 @@ import OpenAI from "openai";
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
+// Type definition for the personality template JSON structure
+export type PersonalityTemplate = {
+  personalInfo: {
+    name: {
+      firstName: string | null;
+      lastName: string | null;
+      preferredName: string | null;
+    };
+    dateOfBirth: string | null;
+    dateOfPassing: string | null;
+    gender: string | null;
+    contact: {
+      email: string | null;
+      phone: string | null;
+    };
+    residence: {
+      street: string | null;
+      city: string | null;
+      state: string | null;
+      country: string | null;
+      postalCode: string | null;
+    };
+  };
+  traits: {
+    personality: {
+      mbti: string | null;
+      strengths: Array<string | null>;
+      challenges: Array<string | null>;
+    };
+    interests: Array<string | null>;
+    values: Array<string | null>;
+    mannerisms: Array<string | null>;
+  };
+  favorites: {
+    colors: Array<string | null>;
+    foods: Array<string | null>;
+    movies: Array<string | null>;
+    books: Array<string | null>;
+    music: {
+      genres: Array<string | null>;
+      artists: Array<string | null>;
+    };
+  };
+  education: {
+    degree: string | null;
+    university: string | null;
+    graduationYear: number | null;
+  };
+  career: {
+    currentPosition: string | null;
+    company: string | null;
+    yearsOfExperience: number | null;
+    skills: Array<string | null>;
+  };
+  languages: Array<{
+    name: string | null;
+    proficiency: string | null;
+  }>;
+  memories: {
+    significantEvents: Array<string | null>;
+    sharedExperiences: Array<string | null>;
+    familyMembers: Array<string | null>;
+    personalStories: Array<string | null>;
+  };
+  relationships: {
+    family: Array<{
+      name: string | null;
+      relation: string | null;
+      details: string | null;
+    }>;
+    friends: Array<{
+      name: string | null;
+      details: string | null;
+    }>;
+  };
+};
+
+
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
@@ -477,5 +555,479 @@ export default async function processCommand(transcript: string): Promise<string
     return "I'm having a moment where I can't quite find the right words. Let's try again in a bit, okay?";
   } finally {
     console.log("command processed");
+  }
+}
+
+export async function processCreate(personalityTemplate: PersonalityTemplate, userResponse: string): Promise<{ message: string; template: PersonalityTemplate }> {
+  console.log("processing create command");
+  
+  // Check if user wants to stop
+  if (userResponse.toLowerCase().includes("stop") || userResponse.toLowerCase().includes("exit") || userResponse.toLowerCase().includes("quit")) {
+    return {
+      message: "Creation process stopped. Your personality template has been saved with the current information.",
+      template: personalityTemplate
+    };
+  }
+
+  try {
+    // Find the first null value in the template
+    const nullField = findFirstNullField(personalityTemplate);
+    console.log("nullField", nullField.previousField);
+    // If there's a previous response and a null field was found, update that field
+    if (userResponse.trim() && nullField.previousField) {
+      console.log("updating template within processor", userResponse);
+      // Update the template with the user's response
+      updateTemplateField(personalityTemplate, nullField.previousField, userResponse);
+    }
+    
+    // If no null fields remain, return success message
+    if (!nullField.currentField) {
+      return {
+        message: "Success! All information has been collected. Your personality template is complete.",
+        template: personalityTemplate
+      };
+    }
+    
+    // Otherwise, ask for the next null field
+    const client = new OpenAI({
+      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+      dangerouslyAllowBrowser: true,
+    });
+    
+    const response = await client.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an assistant helping to create a personality template. Ask the user to provide information for the missing field in a friendly, conversational way. The current missing field is: ${nullField.currentField}. Explain what this field is for and provide examples if helpful.`
+        },
+        {
+          role: "user",
+          content: userResponse || "I'm ready to create a personality template."
+        }
+      ],
+      temperature: 0.2,
+    });
+    
+    return {
+      message: response.choices[0]?.message?.content || `Please provide a value for: ${nullField.currentField}`,
+      template: personalityTemplate
+    };
+    
+  } catch (error) {
+    console.error('Error processing create command:', error);
+    return {
+      message: "I encountered an error while processing your information. Please try again or type 'stop' to save your progress.",
+      template: personalityTemplate
+    };
+  }
+}
+
+// Helper function to find the first null field in the template
+function findFirstNullField(template: PersonalityTemplate): { previousField: string | null, currentField: string | null } {
+  let previousNullField: string | null = null;
+  
+  // Check personal info
+  if (template.personalInfo.name.firstName === null) return { previousField: previousNullField, currentField: "firstName" };
+  previousNullField = "firstName";
+  
+  if (template.personalInfo.name.lastName === null) return { previousField: previousNullField, currentField: "lastName" };
+  previousNullField = "lastName";
+  
+  if (template.personalInfo.name.preferredName === null) return { previousField: previousNullField, currentField: "preferredName" };
+  previousNullField = "preferredName";
+  
+  if (template.personalInfo.dateOfBirth === null) return { previousField: previousNullField, currentField: "dateOfBirth" };
+  previousNullField = "dateOfBirth";
+  
+  if (template.personalInfo.dateOfPassing === null) return { previousField: previousNullField, currentField: "dateOfPassing" };
+  previousNullField = "dateOfPassing";
+  
+  if (template.personalInfo.gender === null) return { previousField: previousNullField, currentField: "gender" };
+  previousNullField = "gender";
+  
+  if (template.personalInfo.contact.email === null) return { previousField: previousNullField, currentField: "email" };
+  previousNullField = "email";
+  
+  if (template.personalInfo.contact.phone === null) return { previousField: previousNullField, currentField: "phone" };
+  previousNullField = "phone";
+  
+  // Check residence
+  if (template.personalInfo.residence.street === null) return { previousField: previousNullField, currentField: "street" };
+  previousNullField = "street";
+  
+  if (template.personalInfo.residence.city === null) return { previousField: previousNullField, currentField: "city" };
+  previousNullField = "city";
+  
+  if (template.personalInfo.residence.state === null) return { previousField: previousNullField, currentField: "state" };
+  previousNullField = "state";
+  
+  if (template.personalInfo.residence.country === null) return { previousField: previousNullField, currentField: "country" };
+  previousNullField = "country";
+  
+  if (template.personalInfo.residence.postalCode === null) return { previousField: previousNullField, currentField: "postalCode" };
+  previousNullField = "postalCode";
+  
+  // Check traits
+  if (template.traits.personality.mbti === null) return { previousField: previousNullField, currentField: "mbti" };
+  previousNullField = "mbti";
+  
+  // Check for null values in arrays
+  if (hasNullInArray(template.traits.personality.strengths)) 
+    return { previousField: previousNullField, currentField: "strengths" };
+  previousNullField = "strengths";
+  
+  if (hasNullInArray(template.traits.personality.challenges)) 
+    return { previousField: previousNullField, currentField: "challenges" };
+  previousNullField = "challenges";
+  
+  if (hasNullInArray(template.traits.interests)) 
+    return { previousField: previousNullField, currentField: "interests" };
+  previousNullField = "interests";
+  
+  if (hasNullInArray(template.traits.values)) 
+    return { previousField: previousNullField, currentField: "values" };
+  previousNullField = "values";
+  
+  if (hasNullInArray(template.traits.mannerisms)) 
+    return { previousField: previousNullField, currentField: "mannerisms" };
+  previousNullField = "mannerisms";
+  
+  // Check favorites
+  if (hasNullInArray(template.favorites.colors))
+    return { previousField: previousNullField, currentField: "colors" };
+  previousNullField = "colors";
+  
+  if (hasNullInArray(template.favorites.foods))
+    return { previousField: previousNullField, currentField: "foods" };
+  previousNullField = "foods";
+  
+  if (hasNullInArray(template.favorites.movies))
+    return { previousField: previousNullField, currentField: "movies" };
+  previousNullField = "movies";
+  
+  if (hasNullInArray(template.favorites.books))
+    return { previousField: previousNullField, currentField: "books" };
+  previousNullField = "books";
+  
+  if (hasNullInArray(template.favorites.music.genres))
+    return { previousField: previousNullField, currentField: "musicGenres" };
+  previousNullField = "musicGenres";
+  
+  if (hasNullInArray(template.favorites.music.artists))
+    return { previousField: previousNullField, currentField: "musicArtists" };
+  previousNullField = "musicArtists";
+  
+  // Check education
+  if (template.education.degree === null) return { previousField: previousNullField, currentField: "degree" };
+  previousNullField = "degree";
+  
+  if (template.education.university === null) return { previousField: previousNullField, currentField: "university" };
+  previousNullField = "university";
+  
+  if (template.education.graduationYear === null) return { previousField: previousNullField, currentField: "graduationYear" };
+  previousNullField = "graduationYear";
+  
+  // Check career
+  if (template.career.currentPosition === null) return { previousField: previousNullField, currentField: "currentPosition" };
+  previousNullField = "currentPosition";
+  
+  if (template.career.company === null) return { previousField: previousNullField, currentField: "company" };
+  previousNullField = "company";
+  
+  if (template.career.yearsOfExperience === null) return { previousField: previousNullField, currentField: "yearsOfExperience" };
+  previousNullField = "yearsOfExperience";
+  
+  if (hasNullInArray(template.career.skills))
+    return { previousField: previousNullField, currentField: "skills" };
+  previousNullField = "skills";
+  
+  // Check languages
+  if (template.languages.some(lang => lang.name === null || lang.proficiency === null)) {
+    return { previousField: previousNullField, currentField: "language" };
+  }
+  previousNullField = "language";
+  
+  // Check memories
+  if (hasNullInArray(template.memories.significantEvents))
+    return { previousField: previousNullField, currentField: "significantEvents" };
+  previousNullField = "significantEvents";
+  
+  if (hasNullInArray(template.memories.sharedExperiences))
+    return { previousField: previousNullField, currentField: "sharedExperiences" };
+  previousNullField = "sharedExperiences";
+  
+  if (hasNullInArray(template.memories.familyMembers))
+    return { previousField: previousNullField, currentField: "familyMembers" };
+  previousNullField = "familyMembers";
+  
+  if (hasNullInArray(template.memories.personalStories))
+    return { previousField: previousNullField, currentField: "personalStories" };
+  previousNullField = "personalStories";
+  
+  // Check relationships
+  if (template.relationships.family.some(member => member.name === null || member.relation === null || member.details === null)) {
+    return { previousField: previousNullField, currentField: "familyRelationship" };
+  }
+  previousNullField = "familyRelationship";
+  
+  if (template.relationships.friends.some(friend => friend.name === null || friend.details === null)) {
+    return { previousField: previousNullField, currentField: "friendRelationship" };
+  }
+  previousNullField = "friendRelationship";
+  
+  // If we reach here, no null fields were found
+  return { previousField: previousNullField, currentField: null };
+}
+
+// Helper function to check if an array contains null values
+function hasNullInArray(arr: Array<string | null>): boolean {
+  return arr.some(item => item === null) || arr.length === 0;
+}
+
+// Helper function to update a field in the template
+function updateTemplateField(template: PersonalityTemplate, fieldName: string, value: string): void {
+  switch (fieldName) {
+    case "firstName":
+      template.personalInfo.name.firstName = value;
+      break;
+    case "lastName":
+      template.personalInfo.name.lastName = value;
+      break;
+    case "preferredName":
+      template.personalInfo.name.preferredName = value;
+      break;
+    case "dateOfBirth":
+      template.personalInfo.dateOfBirth = value;
+      break;
+    case "dateOfPassing":
+      template.personalInfo.dateOfPassing = value;
+      break;
+    case "gender":
+      template.personalInfo.gender = value;
+      break;
+    case "email":
+      template.personalInfo.contact.email = value;
+      break;
+    case "phone":
+      template.personalInfo.contact.phone = value;
+      break;
+    case "street":
+      template.personalInfo.residence.street = value;
+      break;
+    case "city":
+      template.personalInfo.residence.city = value;
+      break;
+    case "state":
+      template.personalInfo.residence.state = value;
+      break;
+    case "country":
+      template.personalInfo.residence.country = value;
+      break;
+    case "postalCode":
+      template.personalInfo.residence.postalCode = value;
+      break;
+    case "mbti":
+      template.traits.personality.mbti = value;
+      break;
+    case "degree":
+      template.education.degree = value;
+      break;
+    case "university":
+      template.education.university = value;
+      break;
+    case "graduationYear":
+      template.education.graduationYear = parseInt(value, 10);
+      break;
+    case "currentPosition":
+      template.career.currentPosition = value;
+      break;
+    case "company":
+      template.career.company = value;
+      break;
+    case "yearsOfExperience":
+      template.career.yearsOfExperience = parseInt(value, 10);
+      break;
+      
+    // Array fields
+    case "strengths":
+      addValueToFirstNullInArray(template.traits.personality.strengths, value);
+      break;
+    case "challenges":
+      addValueToFirstNullInArray(template.traits.personality.challenges, value);
+      break;
+    case "interests":
+      addValueToFirstNullInArray(template.traits.interests, value);
+      break;
+    case "values":
+      addValueToFirstNullInArray(template.traits.values, value);
+      break;
+    case "mannerisms":
+      addValueToFirstNullInArray(template.traits.mannerisms, value);
+      break;
+    case "colors":
+      addValueToFirstNullInArray(template.favorites.colors, value);
+      break;
+    case "foods":
+      addValueToFirstNullInArray(template.favorites.foods, value);
+      break;
+    case "movies":
+      addValueToFirstNullInArray(template.favorites.movies, value);
+      break;
+    case "books":
+      addValueToFirstNullInArray(template.favorites.books, value);
+      break;
+    case "musicGenres":
+      addValueToFirstNullInArray(template.favorites.music.genres, value);
+      break;
+    case "musicArtists":
+      addValueToFirstNullInArray(template.favorites.music.artists, value);
+      break;
+    case "skills":
+      addValueToFirstNullInArray(template.career.skills, value);
+      break;
+    case "significantEvents":
+      addValueToFirstNullInArray(template.memories.significantEvents, value);
+      break;
+    case "sharedExperiences":
+      addValueToFirstNullInArray(template.memories.sharedExperiences, value);
+      break;
+    case "familyMembers":
+      addValueToFirstNullInArray(template.memories.familyMembers, value);
+      break;
+    case "personalStories":
+      addValueToFirstNullInArray(template.memories.personalStories, value);
+      break;
+      
+    // Complex fields
+    case "language":
+      updateFirstNullLanguage(template.languages, value);
+      break;
+    case "familyRelationship":
+      updateFirstNullFamilyRelationship(template.relationships.family, value);
+      break;
+    case "friendRelationship":
+      updateFirstNullFriendRelationship(template.relationships.friends, value);
+      break;
+  }
+}
+
+// Helper function to add a value to the first null position in an array
+function addValueToFirstNullInArray(arr: Array<string | null>, value: string): void {
+  const index = arr.findIndex(item => item === null);
+  if (index !== -1) {
+    arr[index] = value;
+  } else {
+    arr.push(value);
+  }
+}
+
+// Helper function to update the first language with null values
+function updateFirstNullLanguage(languages: Array<{name: string | null; proficiency: string | null}>, value: string): void {
+  // Try to parse the input as "language:proficiency"
+  const parts = value.split(':');
+  
+  // Find the first language with null values
+  const index = languages.findIndex(lang => lang.name === null || lang.proficiency === null);
+  
+  if (index !== -1) {
+    // Update existing language entry
+    if (languages[index].name === null) {
+      languages[index].name = parts.length > 1 ? parts[0].trim() : value.trim();
+      if (parts.length > 1) {
+        languages[index].proficiency = parts[1].trim();
+      }
+    } else if (languages[index].proficiency === null) {
+      languages[index].proficiency = value.trim();
+    }
+  } else {
+    // Add new language entry
+    if (parts.length > 1) {
+      languages.push({
+        name: parts[0].trim(),
+        proficiency: parts[1].trim()
+      });
+    } else {
+      languages.push({
+        name: value.trim(),
+        proficiency: "Conversational" // Default proficiency
+      });
+    }
+  }
+}
+
+// Helper function to update the first family relationship with null values
+function updateFirstNullFamilyRelationship(family: Array<{name: string | null; relation: string | null; details: string | null}>, value: string): void {
+  // Try to parse the input as "name:relation:details"
+  const parts = value.split(':');
+  
+  // Find the first family member with null values
+  const index = family.findIndex(member => member.name === null || member.relation === null || member.details === null);
+  
+  if (index !== -1) {
+    // Update existing family member
+    if (family[index].name === null) {
+      family[index].name = parts.length > 1 ? parts[0].trim() : value.trim();
+      if (parts.length > 1) family[index].relation = parts[1].trim();
+      if (parts.length > 2) family[index].details = parts[2].trim();
+    } else if (family[index].relation === null) {
+      family[index].relation = parts.length > 1 ? parts[0].trim() : value.trim();
+      if (parts.length > 1) family[index].details = parts[1].trim();
+    } else if (family[index].details === null) {
+      family[index].details = value.trim();
+    }
+  } else {
+    // Add new family member
+    if (parts.length > 2) {
+      family.push({
+        name: parts[0].trim(),
+        relation: parts[1].trim(),
+        details: parts[2].trim()
+      });
+    } else if (parts.length > 1) {
+      family.push({
+        name: parts[0].trim(),
+        relation: parts[1].trim(),
+        details: "No additional details provided"
+      });
+    } else {
+      family.push({
+        name: value.trim(),
+        relation: "Family member",
+        details: "No additional details provided"
+      });
+    }
+  }
+}
+
+// Helper function to update the first friend relationship with null values
+function updateFirstNullFriendRelationship(friends: Array<{name: string | null; details: string | null}>, value: string): void {
+  // Try to parse the input as "name:details"
+  const parts = value.split(':');
+  
+  // Find the first friend with null values
+  const index = friends.findIndex(friend => friend.name === null || friend.details === null);
+  
+  if (index !== -1) {
+    // Update existing friend
+    if (friends[index].name === null) {
+      friends[index].name = parts.length > 1 ? parts[0].trim() : value.trim();
+      if (parts.length > 1) friends[index].details = parts[1].trim();
+    } else if (friends[index].details === null) {
+      friends[index].details = value.trim();
+    }
+  } else {
+    // Add new friend
+    if (parts.length > 1) {
+      friends.push({
+        name: parts[0].trim(),
+        details: parts[1].trim()
+      });
+    } else {
+      friends.push({
+        name: value.trim(),
+        details: "No additional details provided"
+      });
+    }
   }
 }

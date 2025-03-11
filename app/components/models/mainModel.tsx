@@ -87,6 +87,22 @@ const CrystallViewer = forwardRef<{
     return (
         <>
             <div className="w-full relative h-full bg-black pt-40 pb-40">
+                <>
+                    <div className="flex justify-center gap-4 mb-6">
+                        <button 
+                            onClick={() => setAction("talk")} 
+                            className={`px-4 py-2 rounded-lg transition-all ${action === "talk" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
+                        >
+                            Talk
+                        </button>
+                        <button 
+                            onClick={() => setAction("create")} 
+                            className={`px-4 py-2 rounded-lg transition-all ${action === "create" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
+                        >
+                            Create
+                        </button>
+                    </div>
+                </>
                 <div className="w-full h-[800px]">
                     <Canvas className="bg-black" gl={{ alpha: false }}>
                         {/* Configurable camera */}

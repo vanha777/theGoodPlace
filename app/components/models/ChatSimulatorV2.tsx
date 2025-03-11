@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import processCommand from '@/app/utils/db'
+import processCommand, { PersonalityTemplate, processCreate } from '@/app/utils/db'
 import idl from "../../../target/idl/the_good_place.json";
 import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react"
 import { PublicKey, Keypair, SystemProgram, Transaction, VersionedTransaction } from "@solana/web3.js";
@@ -20,12 +20,13 @@ interface ChatSimulatorV2Props {
   talkingView: () => void;
 }
 
-export default function ChatSimulatorV2({ 
+export default function ChatSimulatorV2({
   action,
-  createUpdateView, 
-  resetView, 
-  talkingView 
+  createUpdateView,
+  resetView,
+  talkingView
 }: ChatSimulatorV2Props) {
+  const [personData, setPersonData] = useState<PersonalityTemplate | null>(null)
   const { publicKey, connected, connect, disconnect, signMessage, wallet, signTransaction, signAllTransactions } = useWallet();
   const { connection } = useConnection();
   const [messages, setMessages] = useState<Message[]>([])
@@ -46,24 +47,7 @@ export default function ChatSimulatorV2({
     };
   }, [connected]);
 
-  // Sample responses for simulation
-  // const sampleResponses = [
-  //   "That's a great question about founder conviction. The key is to validate your assumptions early and often.",
-  //   "I'd recommend starting with customer interviews to validate your problem hypothesis before building anything.",
-  //   "Market sizing is crucial. Let's break down your TAM, SAM, and SOM to understand the opportunity better.",
-  //   "Have you considered testing this hypothesis with a simple landing page first? It could save you months of development.",
-  //   "Your idea has potential, but I'd suggest narrowing your focus to a more specific customer segment initially."
-  // ]
-
-  // const scrollToBottom = () => {
-  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  // }
-
-  // useEffect(() => {
-  //   scrollToBottom()
-  // }, [messages])
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleCreatePerson = async (e: React.FormEvent) => {
     e.preventDefault()
     if (input.trim() === '') return
 
@@ -75,12 +59,27 @@ export default function ChatSimulatorV2({
     talkingView();
 
     try {
-      // Use processCommand to get real response
-      const response = await processCommand(input)
-      const aiMessage: Message = { role: 'assistant', content: response }
+      // Get the current template from state or initialize a new one if it doesn't exist
+      const currentTemplate = personData || createEmptyTemplate();
+
+      // Use processCreate to get response and updated template
+      const result = await processCreate(currentTemplate, input);
+      console.log("result return to Simulator", result.template);
+      // Save the updated template to state
+      setPersonData(result.template);
+
+      // Add AI response to messages
+      const aiMessage: Message = { role: 'assistant', content: result.message }
       setMessages(prev => [...prev, aiMessage])
+
+      // If the creation process is complete, you might want to do something with the template
+      if (result.message.includes("Success! All information has been collected")) {
+        console.log("Template creation complete:", result.template);
+        // Here you could save the template to a database or file
+        // Or transition to using the template with processCommand
+      }
     } catch (error) {
-      console.error('Error processing command:', error)
+      console.error('Error processing create command:', error)
       const errorMessage: Message = {
         role: 'assistant',
         content: 'Sorry, I encountered an error processing your request.'
@@ -90,6 +89,39 @@ export default function ChatSimulatorV2({
       setIsLoading(false)
       // resetView();
     }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (input.trim() === '') return
+    if (action === "create") {
+      handleCreatePerson(e);
+    } else {
+      // Add user message
+      const userMessage: Message = { role: 'user', content: input }
+      setMessages(prev => [...prev, userMessage])
+      setInput('')
+      setIsLoading(true)
+      talkingView();
+
+      try {
+        // Use processCommand to get real response
+        const response = await processCommand(input)
+        const aiMessage: Message = { role: 'assistant', content: response }
+        setMessages(prev => [...prev, aiMessage])
+      } catch (error) {
+        console.error('Error processing command:', error)
+        const errorMessage: Message = {
+          role: 'assistant',
+          content: 'Sorry, I encountered an error processing your request.'
+        }
+        setMessages(prev => [...prev, errorMessage])
+      } finally {
+        setIsLoading(false)
+        // resetView();
+      }
+    }
+
   }
 
   const createPerson = async () => {
@@ -231,9 +263,94 @@ export default function ChatSimulatorV2({
     }
   };
 
+  // Helper function to create an empty personality template
+  const createEmptyTemplate = (): PersonalityTemplate => {
+    return {
+      personalInfo: {
+        name: {
+          firstName: null,
+          lastName: null,
+          preferredName: null,
+        },
+        dateOfBirth: null,
+        dateOfPassing: null,
+        gender: null,
+        contact: {
+          email: null,
+          phone: null,
+        },
+        residence: {
+          street: null,
+          city: null,
+          state: null,
+          country: null,
+          postalCode: null,
+        },
+      },
+      traits: {
+        personality: {
+          mbti: null,
+          strengths: [],
+          challenges: [],
+        },
+        interests: [],
+        values: [],
+        mannerisms: [],
+      },
+      favorites: {
+        colors: [],
+        foods: [],
+        movies: [],
+        books: [],
+        music: {
+          genres: [],
+          artists: [],
+        },
+      },
+      education: {
+        degree: null,
+        university: null,
+        graduationYear: null,
+      },
+      career: {
+        currentPosition: null,
+        company: null,
+        yearsOfExperience: null,
+        skills: [],
+      },
+      languages: [
+        {
+          name: null,
+          proficiency: null,
+        },
+      ],
+      memories: {
+        significantEvents: [],
+        sharedExperiences: [],
+        familyMembers: [],
+        personalStories: [],
+      },
+      relationships: {
+        family: [
+          {
+            name: null,
+            relation: null,
+            details: null,
+          },
+        ],
+        friends: [
+          {
+            name: null,
+            details: null,
+          },
+        ],
+      },
+    };
+  };
+
   return (
     <div className="relative w-full max-w-2xl mx-auto overflow-hidden z-50">
-      
+
       <div className="flex space-x-2 p-2">
         <button
           onClick={createPerson}
@@ -259,11 +376,10 @@ export default function ChatSimulatorV2({
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-xs md:max-w-md p-2 rounded-lg text-sm ${
-                message.role === 'user'
-                  ? 'bg-blue-600 bg-opacity-80 text-white rounded-br-none'
-                  : 'bg-gray-700 bg-opacity-80 text-gray-100 rounded-bl-none'
-              }`}
+              className={`max-w-xs md:max-w-md p-2 rounded-lg text-sm ${message.role === 'user'
+                ? 'bg-blue-600 bg-opacity-80 text-white rounded-br-none'
+                : 'bg-gray-700 bg-opacity-80 text-gray-100 rounded-bl-none'
+                }`}
             >
               {message.content}
             </div>
