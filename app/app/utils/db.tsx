@@ -50,17 +50,17 @@ export type PersonalityTemplate = {
       artists: Array<string | null>;
     };
   };
-  education: {
-    degree: string | null;
-    university: string | null;
-    graduationYear: number | null;
-  };
-  career: {
-    currentPosition: string | null;
-    company: string | null;
-    yearsOfExperience: number | null;
-    skills: Array<string | null>;
-  };
+  // education: {
+  //   degree: string | null;
+  //   university: string | null;
+  //   graduationYear: number | null;
+  // };
+  // career: {
+  //   currentPosition: string | null;
+  //   company: string | null;
+  //   yearsOfExperience: number | null;
+  //   skills: Array<string | null>;
+  // };
   languages: Array<{
     name: string | null;
     proficiency: string | null;
@@ -186,17 +186,17 @@ interface PersonalityType {
       artists: string[];
     };
   };
-  education: {
-    degree: string;
-    university: string;
-    graduationYear: number;
-  };
-  career: {
-    currentPosition: string;
-    company: string;
-    yearsOfExperience: number;
-    skills: string[];
-  };
+  // education: {
+  //   degree: string;
+  //   university: string;
+  //   graduationYear: number;
+  // };
+  // career: {
+  //   currentPosition: string;
+  //   company: string;
+  //   yearsOfExperience: number;
+  //   skills: string[];
+  // };
   languages: Array<{
     name: string;
     proficiency: string;
@@ -351,22 +351,22 @@ const defaultPersonality: PersonalityType = {
       ]
     }
   },
-  "education": {
-    "degree": "Master's in Computer Science",
-    "university": "Stanford University",
-    "graduationYear": 2015
-  },
-  "career": {
-    "currentPosition": "Senior Software Engineer",
-    "company": "Tech Innovations Inc.",
-    "yearsOfExperience": 8,
-    "skills": [
-      "JavaScript",
-      "Python",
-      "Cloud Architecture",
-      "System Design"
-    ]
-  },
+  // "education": {
+  //   "degree": "Master's in Computer Science",
+  //   "university": "Stanford University",
+  //   "graduationYear": 2015
+  // },
+  // "career": {
+  //   "currentPosition": "Senior Software Engineer",
+  //   "company": "Tech Innovations Inc.",
+  //   "yearsOfExperience": 8,
+  //   "skills": [
+  //     "JavaScript",
+  //     "Python",
+  //     "Cloud Architecture",
+  //     "System Design"
+  //   ]
+  // },
   "languages": [
     {
       "name": "Vietnamese",
@@ -756,12 +756,12 @@ async function updateSectionWithAI(template: PersonalityTemplate, section: strin
     case "favorites":
       sectionData = template.favorites;
       break;
-    case "education":
-      sectionData = template.education;
-      break;
-    case "career":
-      sectionData = template.career;
-      break;
+    // case "education":
+    //   sectionData = template.education;
+    //   break;
+    // case "career":
+    //   sectionData = template.career;
+    //   break;
     case "languages":
       sectionData = template.languages;
       break;
@@ -808,12 +808,12 @@ async function updateSectionWithAI(template: PersonalityTemplate, section: strin
       case "favorites":
         template.favorites = updatedSectionData;
       break;
-      case "education":
-        template.education = updatedSectionData;
-      break;
-      case "career":
-        template.career = updatedSectionData;
-      break;
+      // case "education":
+      //   template.education = updatedSectionData;
+      // break;
+      // case "career":
+      //   template.career = updatedSectionData;
+      // break;
       case "languages":
         template.languages = updatedSectionData;
       break;
@@ -851,16 +851,16 @@ function isFavoritesEmpty(favorites: any): boolean {
          favorites.music.genres.length === 0;
 }
 
-function isEducationEmpty(education: any): boolean {
-  return !education.degree || 
-         !education.university;
-}
+// function isEducationEmpty(education: any): boolean {
+//   return !education.degree || 
+//          !education.university;
+// }
 
-function isCareerEmpty(career: any): boolean {
-  return !career.currentPosition || 
-         !career.company || 
-         career.skills.length === 0;
-}
+// function isCareerEmpty(career: any): boolean {
+//   return !career.currentPosition || 
+//          !career.company || 
+//          career.skills.length === 0;
+// }
 
 function isLanguagesEmpty(languages: any): boolean {
   return languages.length === 0 || 

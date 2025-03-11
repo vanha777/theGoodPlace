@@ -307,17 +307,17 @@ export default function ChatSimulatorV2({
           artists: [],
         },
       },
-      education: {
-        degree: null,
-        university: null,
-        graduationYear: null,
-      },
-      career: {
-        currentPosition: null,
-        company: null,
-        yearsOfExperience: null,
-        skills: [],
-      },
+      // education: {
+      //   degree: null,
+      //   university: null,
+      //   graduationYear: null,
+      // },
+      // career: {
+      //   currentPosition: null,
+      //   company: null,
+      //   yearsOfExperience: null,
+      //   skills: [],
+      // },
       languages: [
         {
           name: null,
