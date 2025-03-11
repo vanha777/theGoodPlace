@@ -16,6 +16,7 @@ import Head from 'next/head'
 import ChatSimulator from '@/components/ChatSimulator'
 import { WalletConnectionProvider } from './utils/Walletcontext'
 import CrystallViewer from '@/components/models/mainModel'
+import Roadmap from '@/components/roadMap'
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false)
@@ -38,7 +39,10 @@ export default function Home() {
           <NavBar />
           <Landing />
           <Partner />
+          <div className=' bg-black'>
           <CrystallViewer />
+          </div>
+          <Roadmap />
           {/* <ChatSimulator /> */}
           <Footer />
           {/* <Features /> */}

@@ -31,7 +31,7 @@ export default function NavBar() {
             className="top-0 w-full z-50"
         >
             {/* Background with light theme matching Landing */}
-            <div className="absolute inset-0 bg-[#f5f9fa] shadow-md">
+            <div className="absolute inset-0 bg-[#f5f9fa]">
                 {/* Subtle gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-r from-[#00ffe1]/10 via-[#00d9ff]/10 to-[#00a3ff]/10" />
             </div>

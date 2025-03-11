@@ -68,7 +68,7 @@ const CrystallViewer = forwardRef<{
         setCurrentSpeed(1);
         // wait 2 seconds
         setTimeout(() => {
-            setCurrentCameraPosition([0, 0, 2.5]);
+            // setCurrentCameraPosition([0, 0, 2.5]);
             setCurrentSpeed(0.2);
         }, 2000);
     }
@@ -82,8 +82,8 @@ const CrystallViewer = forwardRef<{
 
     return (
         <>
-            <div className="w-full relative h-[900px] bg-black pt-40 pb-40">
-                <div className="w-full h-[500px]">
+            <div className="w-full relative h-full bg-black pt-40 pb-40">
+                <div className="w-full h-[800px]">
                     <Canvas className="bg-black" gl={{ alpha: false }}>
                         {/* Configurable camera */}
                         <PerspectiveCamera
@@ -105,8 +105,8 @@ const CrystallViewer = forwardRef<{
                         />
                     </Canvas>
                 </div>
-                <div className="absolute top-66 left-0 right-0">
-                    <ChatSimulatorV2 />
+                <div className="absolute bottom-40 left-0 right-0">
+                    <ChatSimulatorV2 createUpdateView={createUpdateView} resetView={resetView} talkingView={talkingView} />
                 </div>
             </div>
         </>

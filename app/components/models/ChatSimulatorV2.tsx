@@ -13,8 +13,17 @@ type Message = {
   role: 'user' | 'assistant'
   content: string
 }
+interface ChatSimulatorV2Props {
+  createUpdateView: () => void;
+  resetView: () => void;
+  talkingView: () => void;
+}
 
-export default function ChatSimulatorV2() {
+export default function ChatSimulatorV2({ 
+  createUpdateView, 
+  resetView, 
+  talkingView 
+}: ChatSimulatorV2Props) {
   const { publicKey, connected, connect, disconnect, signMessage, wallet, signTransaction, signAllTransactions } = useWallet();
   const { connection } = useConnection();
   const [messages, setMessages] = useState<Message[]>([])
@@ -24,13 +33,16 @@ export default function ChatSimulatorV2() {
 
   // Add debugging to check component lifecycle
   useEffect(() => {
+    if (connected) {
+      talkingView();
+    }
     console.log('ChatSimulator mounted');
 
     // Return cleanup function to detect unmounting
     return () => {
       console.log('ChatSimulator unmounted');
     };
-  }, []);
+  }, [connected]);
 
   // Sample responses for simulation
   // const sampleResponses = [
@@ -58,6 +70,7 @@ export default function ChatSimulatorV2() {
     setMessages(prev => [...prev, userMessage])
     setInput('')
     setIsLoading(true)
+    talkingView();
 
     try {
       // Use processCommand to get real response
@@ -73,6 +86,7 @@ export default function ChatSimulatorV2() {
       setMessages(prev => [...prev, errorMessage])
     } finally {
       setIsLoading(false)
+      // resetView();
     }
   }
 
@@ -216,7 +230,7 @@ export default function ChatSimulatorV2() {
   };
 
   return (
-    <div className="relative w-full max-w-2xl mx-auto bg-gray-900 bg-opacity-60 backdrop-blur-sm rounded-xl overflow-hidden shadow-xl border border-gray-800 z-50">
+    <div className="relative w-full max-w-2xl mx-auto overflow-hidden z-50">
       
       <div className="flex space-x-2 p-2">
         <button

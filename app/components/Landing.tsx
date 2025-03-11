@@ -44,13 +44,13 @@ export default function Landing() {
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="w-full md:w-1/2 relative h-screen"
+          className="w-full md:w-1/2 relative min-h-[50vh] md:min-h-[80vh] h-auto"
         >
           <Image
             src="/landing.png"
             alt="Memorial Portrait"
             fill
-            className="object-cover object-center"
+            className="object-contain md:object-cover object-center"
             priority
           />
         </motion.div>
