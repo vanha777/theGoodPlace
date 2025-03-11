@@ -564,7 +564,7 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
   // Check if user wants to stop
   if (userResponse.toLowerCase().includes("stop") || userResponse.toLowerCase().includes("exit") || userResponse.toLowerCase().includes("quit")) {
     return {
-      message: "Creation process stopped. Your personality template has been saved with the current information.",
+      message: "Creation process stopped. Your template has been saved.",
       template: personalityTemplate
     };
   }
@@ -605,7 +605,7 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
           messages: [
             {
               role: "system",
-              content: `You are an assistant helping to create a personality template. Thank the user for providing their personal information. Now, ask them to provide information for the traits section. This includes personality type (MBTI), strengths, challenges, interests, values, and mannerisms. Explain what this section is for and provide examples if helpful.`
+              content: `You're helping create a personality profile. Keep your response short and conversational. Thank the user briefly for the personal info, then ask about traits (personality type, strengths, challenges, interests, values, mannerisms). Max 2 sentences.`
             },
             {
               role: "user",
@@ -615,7 +615,7 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
         });
         
         return {
-          message: response.choices[0]?.message?.content || "Thanks for your personal information. Now, please tell me about the person's traits, including personality type, strengths, challenges, interests, values, and mannerisms.",
+          message: response.choices[0]?.message?.content || "Thanks! Now tell me about their personality traits, strengths, and interests.",
           template: personalityTemplate
         };
       }
@@ -626,7 +626,7 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
         messages: [
           {
             role: "system",
-            content: `You are an assistant helping to create a personality template. Welcome the user and ask them to provide personal information for the template. Explain that you'll be collecting information in 5 sections: personal info, traits, favorites, languages, memories, and relationships. Now, ask for the first section: personal information (name, date of birth, gender, contact details, residence).`
+            content: `You're helping create a personality profile. Keep your response short and conversational. Welcome the user briefly and ask for basic personal info (name, birth date, etc). Max 2-3 sentences.`
           },
           {
             role: "user",
@@ -636,7 +636,7 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
       });
       
       return {
-        message: response.choices[0]?.message?.content || "Let's start creating your personality template. Please provide personal information like name, date of birth, gender, contact details, and residence.",
+        message: response.choices[0]?.message?.content || "Hi! Let's create a personality profile. What's their name, birth date, and gender?",
         template: personalityTemplate
       };
     }
@@ -666,7 +666,7 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
         messages: [
           {
             role: "system",
-            content: `You are an assistant helping to create a personality template. The user has completed all 5 sections of the template. Ask if they want to finish the process or if they'd like to update any specific section (personal info, traits, favorites, languages, memories, relationships).`
+            content: `You're helping create a personality profile. Keep your response short and conversational. The user has completed all sections. Ask if they want to finish or update any section. Max 2 sentences.`
           },
           {
             role: "user",
@@ -674,9 +674,11 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
           }
         ],
       });
+
+      console.log("finish inside processor ");
       
       return {
-        message: response.choices[0]?.message?.content || "You've completed all sections of the personality template. Would you like to finish, or would you like to update any specific section?",
+        message: response.choices[0]?.message?.content || "All done! Want to finish up or update anything?",
         template: personalityTemplate
       };
     }
@@ -687,12 +689,34 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
       dangerouslyAllowBrowser: true,
     });
     
+    // Create section-specific prompts that are short and natural
+    let promptContent = "";
+    switch (nextSection) {
+      case "traits":
+        promptContent = "Ask briefly about personality traits, strengths, and interests.";
+        break;
+      case "favorites":
+        promptContent = "Ask briefly about favorite colors, foods, movies, books, and music.";
+        break;
+      case "languages":
+        promptContent = "Ask briefly about languages they speak and proficiency levels.";
+        break;
+      case "memories":
+        promptContent = "Ask briefly about significant memories, experiences, and personal stories.";
+        break;
+      case "relationships":
+        promptContent = "Ask briefly about family members and friends.";
+        break;
+      default:
+        promptContent = `Ask briefly about the ${nextSection} section.`;
+    }
+    
     const response = await client.chat.completions.create({
       model: "o3-mini",
       messages: [
         {
           role: "system",
-          content: `You are an assistant helping to create a personality template. Thank the user for their previous response about ${currentSection}. Now, ask them to provide information for the next section: ${nextSection}. Explain what this section includes and provide examples if helpful.`
+          content: `You're helping create a personality profile. Keep your response short and conversational. ${promptContent} Max 2 sentences.`
         },
         {
           role: "user",
@@ -702,16 +726,36 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
     });
     
     return {
-      message: response.choices[0]?.message?.content || `Please provide information for the ${nextSection} section.`,
+      message: response.choices[0]?.message?.content || getDefaultQuestion(nextSection),
       template: personalityTemplate
     };
     
   } catch (error) {
     console.error('Error processing create command:', error);
     return {
-      message: "I encountered an error while processing your information. Please try again or type 'stop' to save your progress.",
+      message: "Sorry, something went wrong. Try again or type 'stop' to save your progress.",
       template: personalityTemplate
     };
+  }
+}
+
+// Helper function to get default short questions for each section
+function getDefaultQuestion(section: string): string {
+  switch (section) {
+    case "personalInfo":
+      return "What's their name, birth date, and gender?";
+    case "traits":
+      return "What's their personality like? Any strengths or interests?";
+    case "favorites":
+      return "What are some of their favorite things - colors, foods, movies?";
+    case "languages":
+      return "What languages do they speak?";
+    case "memories":
+      return "Any significant memories or personal stories to share?";
+    case "relationships":
+      return "Tell me about their family and friends.";
+    default:
+      return `What about their ${section}?`;
   }
 }
 
