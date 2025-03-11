@@ -14,12 +14,14 @@ type Message = {
   content: string
 }
 interface ChatSimulatorV2Props {
+  action: string;
   createUpdateView: () => void;
   resetView: () => void;
   talkingView: () => void;
 }
 
 export default function ChatSimulatorV2({ 
+  action,
   createUpdateView, 
   resetView, 
   talkingView 

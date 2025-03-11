@@ -4,7 +4,8 @@ import { OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
 import { Suspense, useState, useImperativeHandle, forwardRef } from "react";
 import { CrystallBall } from "./crystallBall";
 import ChatSimulatorV2 from "./ChatSimulatorV2";
-
+import { useWallet, useConnection } from "@solana/wallet-adapter-react"
+import { WalletMultiButtonDynamic } from "../NavBar";
 interface CrystallViewerProps {
     animationName?: string;
     playing?: boolean;
@@ -42,6 +43,9 @@ const CrystallViewer = forwardRef<{
     minDistance = 2,
     maxDistance = 10
 }: CrystallViewerProps, ref) => {
+    const { publicKey, connected, connect, disconnect, signMessage, wallet } = useWallet();
+    const { connection } = useConnection();
+    const [action, setAction] = useState("talk");
     // Add state to manage camera position and speed
     const [currentSpeed, setCurrentSpeed] = useState(speed);
     const [currentCameraPosition, setCurrentCameraPosition] = useState<[number, number, number]>(cameraPosition);
@@ -106,7 +110,33 @@ const CrystallViewer = forwardRef<{
                     </Canvas>
                 </div>
                 <div className="absolute bottom-40 left-0 right-0">
-                    <ChatSimulatorV2 createUpdateView={createUpdateView} resetView={resetView} talkingView={talkingView} />
+                    {connected ? (
+                        <ChatSimulatorV2 action={action} createUpdateView={createUpdateView} resetView={resetView} talkingView={talkingView} />
+                    ) : (
+                        <div className="text-center p-6 backdrop-blur-sm bg-black/30 max-w-md mx-auto rounded-lg">
+                            {/* <h2 className="text-2xl font-light text-white mb-3">Connect to Experience</h2> */}
+                            <p className="text-gray-400 mb-5 text-sm">Immortalizes your digital self on the blockchain</p>
+                            <WalletMultiButtonDynamic
+                                style={{
+                                    // background: "linear-gradient(to right, #00ffe1, #00d9ff, #00a3ff)",
+                                    background: "transparent",
+                                    color: "#ffffff",
+                                    padding: "8px 16px",
+                                    borderRadius: "8px",
+                                    border: "none",
+                                    fontSize: "16px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                    transition: "all 0.3s ease",
+                                    boxShadow: "0 0 15px rgba(0, 217, 255, 0.3), inset 0 0 10px rgba(255, 255, 255, 0.1)",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: "8px",
+                                    backdropFilter: "blur(4px)"
+                                }}
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </>

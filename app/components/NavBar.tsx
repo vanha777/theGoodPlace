@@ -8,7 +8,7 @@ import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import dynamic from 'next/dynamic'
 
 // Dynamically import the WalletMultiButton to avoid SSR issues
-const WalletMultiButtonDynamic = dynamic(
+export const WalletMultiButtonDynamic = dynamic(
     () => import('@solana/wallet-adapter-react-ui').then((mod) => mod.WalletMultiButton),
     { ssr: false }
 )
