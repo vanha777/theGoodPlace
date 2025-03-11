@@ -216,39 +216,38 @@ export default function ChatSimulatorV2() {
   };
 
   return (
-    <div className=" relative w-full max-w-2xl mx-auto bg-gray-900 rounded-xl overflow-hidden shadow-xl border border-gray-800 z-50">
-
-      <button
-        onClick={createPerson}
-        disabled={isLoading}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-      >
-        Create Person
-      </button>
-      <button
-        onClick={updatePerson}
-        disabled={isLoading}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-      >
-        Update Person
-      </button>
-
-      <div className="p-4 bg-gray-800 border-b border-gray-700">
-        <h2 className="text-xl font-semibold text-gray-100">TheGoodPlacce Chat</h2>
+    <div className="relative w-full max-w-2xl mx-auto bg-gray-900 bg-opacity-60 backdrop-blur-sm rounded-xl overflow-hidden shadow-xl border border-gray-800 z-50">
+      
+      <div className="flex space-x-2 p-2">
+        <button
+          onClick={createPerson}
+          disabled={isLoading}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+        >
+          Create Person
+        </button>
+        <button
+          onClick={updatePerson}
+          disabled={isLoading}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+        >
+          Update Person
+        </button>
       </div>
 
-      {/* Chat messages */}
-      <div className="h-96 overflow-y-auto p-4 space-y-4">
-        {messages.map((message, index) => (
+      {/* Chat messages - limited to last 3-4 messages */}
+      <div className="max-h-32 overflow-y-auto p-2 space-y-2">
+        {messages.slice(-4).map((message, index) => (
           <div
             key={index}
             className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-xs md:max-w-md p-3 rounded-lg ${message.role === 'user'
-                ? 'bg-blue-600 text-white rounded-br-none'
-                : 'bg-gray-700 text-gray-100 rounded-bl-none'
-                }`}
+              className={`max-w-xs md:max-w-md p-2 rounded-lg text-sm ${
+                message.role === 'user'
+                  ? 'bg-blue-600 bg-opacity-80 text-white rounded-br-none'
+                  : 'bg-gray-700 bg-opacity-80 text-gray-100 rounded-bl-none'
+              }`}
             >
               {message.content}
             </div>
@@ -256,7 +255,7 @@ export default function ChatSimulatorV2() {
         ))}
         {isLoading && (
           <div className="flex justify-start">
-            <div className="bg-gray-700 text-gray-100 p-3 rounded-lg rounded-bl-none">
+            <div className="bg-gray-700 bg-opacity-80 text-gray-100 p-2 rounded-lg rounded-bl-none">
               <div className="flex space-x-2">
                 <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse"></div>
                 <div className="w-2 h-2 rounded-full bg-gray-400 animate-pulse" style={{ animationDelay: '0.2s' }}></div>
@@ -269,19 +268,19 @@ export default function ChatSimulatorV2() {
       </div>
 
       {/* Input form */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-gray-700 bg-gray-800">
+      <form onSubmit={handleSubmit} className="p-2 border-t border-gray-700 bg-gray-800 bg-opacity-60">
         <div className="flex">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask TheGoodPlacce something..."
-            className="flex-1 bg-gray-700 text-gray-100 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="flex-1 bg-gray-700 bg-opacity-70 text-gray-100 rounded-l-lg px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <button
             type="submit"
             disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
             Send
           </button>

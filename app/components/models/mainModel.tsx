@@ -54,7 +54,7 @@ const CrystallViewer = forwardRef<{
             setCurrentSpeed(0.2);
         }, 2000);
     }
-    
+
     const resetView = () => {
         setCurrentSpeed(1);
         // wait 2 seconds
@@ -63,7 +63,7 @@ const CrystallViewer = forwardRef<{
             setCurrentSpeed(0.2);
         }, 2000);
     }
-    
+
     const talkingView = () => {
         setCurrentSpeed(1);
         // wait 2 seconds
@@ -81,28 +81,35 @@ const CrystallViewer = forwardRef<{
     }));
 
     return (
-        <div className="w-full h-[500px]">
-            <Canvas className="bg-black" gl={{ alpha: false }}>
-                {/* Configurable camera */}
-                <PerspectiveCamera
-                    makeDefault
-                    position={currentCameraPosition}
-                    fov={cameraFov}
-                />
-                {/* Lighting */}
-                <ambientLight />
-                <pointLight position={[10, 10, 10]} />
-                {/* Crystal Ball */}
-                <Suspense fallback={null}>
-                    <CrystallBall animationName={animationName} playing={playing} speed={currentSpeed} />
-                </Suspense>
-                <OrbitControls
-                    enableRotate={false}
-                    enablePan={false}
-                    enableZoom={false}
-                />
-            </Canvas>
-        </div>
+        <>
+            <div className="w-full relative h-[900px] bg-black pt-40 pb-40">
+                <div className="w-full h-[500px]">
+                    <Canvas className="bg-black" gl={{ alpha: false }}>
+                        {/* Configurable camera */}
+                        <PerspectiveCamera
+                            makeDefault
+                            position={currentCameraPosition}
+                            fov={cameraFov}
+                        />
+                        {/* Lighting */}
+                        <ambientLight />
+                        <pointLight position={[10, 10, 10]} />
+                        {/* Crystal Ball */}
+                        <Suspense fallback={null}>
+                            <CrystallBall animationName={animationName} playing={playing} speed={currentSpeed} />
+                        </Suspense>
+                        <OrbitControls
+                            enableRotate={false}
+                            enablePan={false}
+                            enableZoom={false}
+                        />
+                    </Canvas>
+                </div>
+                <div className="absolute top-66 left-0 right-0">
+                    <ChatSimulatorV2 />
+                </div>
+            </div>
+        </>
     );
 });
 

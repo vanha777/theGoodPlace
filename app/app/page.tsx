@@ -39,7 +39,7 @@ export default function Home() {
           <Landing />
           <Partner />
           <CrystallViewer />
-          <ChatSimulator />
+          {/* <ChatSimulator /> */}
           <Footer />
           {/* <Features /> */}
           {/* <Starters /> */}
