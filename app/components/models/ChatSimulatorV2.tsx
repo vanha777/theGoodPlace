@@ -409,7 +409,6 @@ export default function ChatSimulatorV2({
           onSubmit={handleManuallyUpdate}
         />
       )}
-
       {/* <div className="flex space-x-2 p-2"> */}
         {/* <button
           onClick={createPerson}
