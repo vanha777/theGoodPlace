@@ -3,6 +3,7 @@ import { ChatOpenAI } from "@langchain/openai";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { LLMChain } from "langchain/chains";
 import OpenAI from "openai";
+import { Connection, PublicKey } from '@solana/web3.js';
 // Replace with your Supabase project URL and Anon key
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -143,6 +144,11 @@ export const VerfifyUser = async (username: string) => {
   }
 };
 
+interface LanguageType {
+  name: string;
+  proficiency: string;
+}
+
 // Define TypeScript interfaces for the personality structure
 interface PersonalityType {
   personalInfo: {
@@ -197,10 +203,7 @@ interface PersonalityType {
   //   yearsOfExperience: number;
   //   skills: string[];
   // };
-  languages: Array<{
-    name: string;
-    proficiency: string;
-  }>;
+  languages: LanguageType[];
   memories: {
     significantEvents: string[];
     sharedExperiences: string[];
@@ -1006,3 +1009,37 @@ export async function uploadPersonalityToSupabase(
     };
   }
 }
+
+/**
+ * Check if a PDA exists for the given entry seed
+ * @param connection Solana connection
+ * @param programId Your program's ID
+ * @param entrySeed The entry seed public key
+ * @returns Promise<boolean> Whether the PDA exists
+ */
+export async function checkIfPdaExists(
+  connection: Connection,
+  entrySeed: PublicKey
+): Promise<boolean> {
+  const programId = new PublicKey(process.env.NEXT_PUBLIC_THE_GOOD_PLACE_PROGRAM_ID || "");
+  try {
+    // Derive the PDA address using the same seeds as your program
+    const [pdaAddress] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("thegoodplace"), 
+        entrySeed.toBuffer()
+      ],
+      programId
+    );
+    
+    // Check if the account exists
+    const accountInfo = await connection.getAccountInfo(pdaAddress);
+    
+    // If accountInfo is not null, the account exists
+    return accountInfo !== null;
+  } catch (error) {
+    console.error("Error checking PDA existence:", error);
+    return false;
+  }
+}
+
