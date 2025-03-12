@@ -53,7 +53,7 @@ const CrystallViewer = forwardRef<{
     const [action, setAction] = useState("talk");
     // Add state to manage camera position and speed
     const [currentSpeed, setCurrentSpeed] = useState(speed);
-    
+
     // Use spring for smooth camera animation
     const [cameraProps, setCameraProps] = useSpring(() => ({
         position: cameraPosition,
@@ -65,7 +65,7 @@ const CrystallViewer = forwardRef<{
         if (action === "talk") {
             setCameraProps({ position: [0, 0, 16] });
         } else if (action === "create") {
-            setCameraProps({ position: [0, 0, 2.5] });
+            setCameraProps({ position: [0, 0, 3] });
         }
     }, [action, setCameraProps]);
 
@@ -73,7 +73,7 @@ const CrystallViewer = forwardRef<{
         setCurrentSpeed(1);
         // First transition
         setCameraProps({ position: [0, 0, 5] }); // Intermediate position
-        
+
         // Second transition after delay
         setTimeout(() => {
             setCameraProps({ position: [0, 0, 0.8] });
@@ -85,7 +85,7 @@ const CrystallViewer = forwardRef<{
         setCurrentSpeed(1);
         // Smooth transition back
         setCameraProps({ position: [0, 0, 16] });
-        
+
         setTimeout(() => {
             setCurrentSpeed(0.2);
         }, 1000);
@@ -94,8 +94,8 @@ const CrystallViewer = forwardRef<{
     const talkingView = () => {
         setCurrentSpeed(1);
         // Smooth transition to talking view
-        setCameraProps({ position: [0, 0, 2.5] });
-        
+        // setCameraProps({ position: [0, 0, 2.5] });
+
         setTimeout(() => {
             setCurrentSpeed(0.2);
         }, 1000);
@@ -113,14 +113,14 @@ const CrystallViewer = forwardRef<{
             <div className="w-full relative h-full bg-black pt-40 pb-40">
                 <>
                     <div className="flex justify-center gap-4 mb-6">
-                        <button 
-                            onClick={() => setAction("talk")} 
+                        <button
+                            onClick={() => setAction("talk")}
                             className={`px-4 py-2 rounded-lg transition-all ${action === "talk" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
                         >
                             Communicate
                         </button>
-                        <button 
-                            onClick={() => setAction("create")} 
+                        <button
+                            onClick={() => setAction("create")}
                             className={`px-4 py-2 rounded-lg transition-all ${action === "create" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
                         >
                             Create

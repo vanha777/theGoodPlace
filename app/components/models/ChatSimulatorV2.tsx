@@ -38,6 +38,12 @@ export default function ChatSimulatorV2({
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  useEffect(() => {
+    console.log("chatAction changing", action);
+    setMessages([])
+    setInput('')
+  }, [action]);
+
   // Add debugging to check component lifecycle
   useEffect(() => {
     if (connected) {
@@ -410,7 +416,7 @@ export default function ChatSimulatorV2({
         />
       )}
       {/* <div className="flex space-x-2 p-2"> */}
-        {/* <button
+      {/* <button
           onClick={createPerson}
           disabled={isLoading}
           className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
@@ -424,15 +430,15 @@ export default function ChatSimulatorV2({
         >
           Update Person
         </button> */}
-        {personData && action === "create" && (
-          <button
-            onClick={() => setOverlay(true)}
-            disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
-          >
-            Person
-          </button>
-        )}
+      {personData && action === "create" && (
+        <button
+          onClick={() => setOverlay(true)}
+          disabled={isLoading}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+        >
+          Person
+        </button>
+      )}
       {/* </div> */}
 
       {/* Chat messages - limited to last 3-4 messages */}
