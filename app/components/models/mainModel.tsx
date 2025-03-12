@@ -93,13 +93,13 @@ const CrystallViewer = forwardRef<{
                             onClick={() => setAction("talk")} 
                             className={`px-4 py-2 rounded-lg transition-all ${action === "talk" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
                         >
-                            Talk
+                            Communicate
                         </button>
                         <button 
                             onClick={() => setAction("create")} 
                             className={`px-4 py-2 rounded-lg transition-all ${action === "create" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
                         >
-                            Create
+                            Adjust
                         </button>
                     </div>
                 </>

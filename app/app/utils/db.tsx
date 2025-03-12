@@ -558,7 +558,7 @@ export default async function processCommand(transcript: string): Promise<string
   }
 }
 
-export async function processCreate(personalityTemplate: PersonalityTemplate, userResponse: string): Promise<{ message: string; template: PersonalityTemplate }> {
+export async function processCreate(personalityTemplate: PersonalityTemplate, userResponse: string): Promise<{ message: string; template: PersonalityTemplate, action?: string, uri?: string }> {
   console.log("processing create command");
 
   // Check if user wants to stop
@@ -572,12 +572,16 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
   if (userResponse.toLowerCase().includes("upload")) {
     try {
       const uuid = crypto.randomUUID();
-      await uploadPersonalityToSupabase(personalityTemplate, uuid);
-      console.log("Successfully uploaded personality to Supabase");
-      return {
-        message: " All done, we've immortalized the person you've created on the blockchain",
-        template: personalityTemplate
-      };
+      const { url } = await uploadPersonalityToSupabase(personalityTemplate, uuid);
+      if (url) {
+        console.log("Successfully uploaded personality to Supabase",url);
+        return {
+          message: " All done, we've immortalized the person you've created on the blockchain",
+          template: personalityTemplate,
+          action: "completed",
+          uri: url
+        };
+      }
     } catch (error) {
       console.error("Error uploading personality to Supabase:", error);
       return {
