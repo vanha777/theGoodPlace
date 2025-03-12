@@ -17,6 +17,7 @@ import ChatSimulator from '@/components/ChatSimulator'
 import { WalletConnectionProvider } from './utils/Walletcontext'
 import CrystallViewer from '@/components/models/mainModel'
 import Roadmap from '@/components/roadMap'
+import { AppProvider } from './utils/AppContext'
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(false)
@@ -33,19 +34,21 @@ export default function Home() {
 
   return (
     <WalletConnectionProvider>
-      <Suspense fallback={<div className="bg-black text-gray-200">Loading...</div>}>
-        <main className="bg-black min-h-screen relative text-gray-200">
-          <title>TheGoodPlace - Build Founder Conviction Before Code</title>
-          {/* <NavBar /> */}
-          <Landing />
-          <Partner />
-          <div className=' bg-black'>
-          <CrystallViewer />
-          </div>
-          <Roadmap />
-          {/* <Footer /> */}
-        </main>
-      </Suspense>
+      <AppProvider>
+        <Suspense fallback={<div className="bg-black text-gray-200">Loading...</div>}>
+          <main className="bg-black min-h-screen relative text-gray-200">
+            <title>TheGoodPlace - Build Founder Conviction Before Code</title>
+            <NavBar />
+            {/* <Landing />
+          <Partner /> */}
+            <div className=' bg-black'>
+              <CrystallViewer />
+            </div>
+            {/* <Roadmap /> */}
+            {/* <Footer /> */}
+          </main>
+        </Suspense>
+      </AppProvider>
     </WalletConnectionProvider>
   )
 }

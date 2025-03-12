@@ -62,10 +62,12 @@ export type PersonalityTemplate = {
   //   yearsOfExperience: number | null;
   //   skills: Array<string | null>;
   // };
-  languages: Array<{
-    name: string | null;
-    proficiency: string | null;
-  }>;
+  languages: {
+    language: Array<{
+      name: string | null;
+      proficiency: string | null;
+    }>;
+  };
   memories: {
     significantEvents: Array<string | null>;
     sharedExperiences: Array<string | null>;
@@ -144,87 +146,10 @@ export const VerfifyUser = async (username: string) => {
   }
 };
 
-interface LanguageType {
-  name: string;
-  proficiency: string;
-}
-
 // Define TypeScript interfaces for the personality structure
-interface PersonalityType {
-  personalInfo: {
-    name: {
-      firstName: string;
-      lastName: string;
-      preferredName: string;
-    };
-    dateOfBirth: string;
-    dateOfPassing?: string;
-    gender: string;
-    contact: {
-      email: string;
-      phone: string;
-    };
-    residence: {
-      street: string;
-      city: string;
-      state: string;
-      country: string;
-      postalCode: string;
-    };
-  };
-  traits: {
-    personality: {
-      mbti: string;
-      strengths: string[];
-      challenges: string[];
-    };
-    interests: string[];
-    values: string[];
-    mannerisms: string[];
-  };
-  favorites: {
-    colors: string[];
-    foods: string[];
-    movies: string[];
-    books: string[];
-    music: {
-      genres: string[];
-      artists: string[];
-    };
-  };
-  // education: {
-  //   degree: string;
-  //   university: string;
-  //   graduationYear: number;
-  // };
-  // career: {
-  //   currentPosition: string;
-  //   company: string;
-  //   yearsOfExperience: number;
-  //   skills: string[];
-  // };
-  languages: LanguageType[];
-  memories: {
-    significantEvents: string[];
-    sharedExperiences: string[];
-    familyMembers: string[];
-    personalStories: string[];
-  };
-  relationships: {
-    family: Array<{
-      name: string;
-      relation: string;
-      details: string;
-    }>;
-    friends: Array<{
-      name: string;
-      details: string;
-    }>;
-  };
-}
 
 // Fetch personality from URL with fallback to default
-export async function fetchPersonality(url: string): Promise<PersonalityType> {
+export async function fetchPersonality(url: string): Promise<PersonalityTemplate> {
   try {
     // URL to fetch personality data from
     const personalityUrl = url || 'https://your-default-url.com/personality.json';
@@ -237,7 +162,7 @@ export async function fetchPersonality(url: string): Promise<PersonalityType> {
 
     const personalityData = await response.json();
     console.log("response", personalityData);
-    return personalityData as PersonalityType;
+    return personalityData as PersonalityTemplate;
   } catch (error) {
     console.error('Error fetching personality data:', error);
     return defaultPersonality;
@@ -245,7 +170,7 @@ export async function fetchPersonality(url: string): Promise<PersonalityType> {
 }
 
 // Default personality to use if fetching fails
-const defaultPersonality: PersonalityType = {
+const defaultPersonality: PersonalityTemplate = {
   "personalInfo": {
     "name": {
       "firstName": "H",
@@ -370,12 +295,14 @@ const defaultPersonality: PersonalityType = {
   //     "System Design"
   //   ]
   // },
-  "languages": [
-    {
-      "name": "Vietnamese",
-      "proficiency": "Native"
-    }
-  ],
+  "languages": {
+    "language": [
+      {
+        "name": "Vietnamese",
+        "proficiency": "Native"
+      }
+    ]
+  },
   "memories": {
     "significantEvents": [
       "Our wedding day in Napa Valley, 2015",
@@ -428,13 +355,13 @@ const defaultPersonality: PersonalityType = {
   }
 };
 
-export default async function processCommand(transcript: string): Promise<string> {
+export default async function processCommand(transcript: string,personality: PersonalityTemplate): Promise<string> {
   console.log("processing command");
   if (!transcript.trim()) return "";
 
   try {
     // Fetch personality data from URL instead of using default directly
-    let personality = await fetchPersonality("https://vbfejmafjqgcfrzxewcd.supabase.co/storage/v1/object/public/general//boHoang.json");
+    // let personality = await fetchPersonality(url);
 
     // Initialize OpenAI model through LangChain
     // const model = new ChatOpenAI({
@@ -454,7 +381,7 @@ export default async function processCommand(transcript: string): Promise<string
     const significantMemories = personality.memories.significantEvents.map(m => `- ${m}`).join('\n');
     const sharedExperiences = personality.memories.sharedExperiences.map(e => `- ${e}`).join('\n');
     const personalStories = personality.memories.personalStories.map(s => `- ${s}`).join('\n');
-    const languages = personality.languages.map(l => `- ${l.name} (${l.proficiency})`).join('\n');
+    const languages = personality.languages.language.map(l => `- ${l.name} (${l.proficiency})`).join('\n');
 
     // Get favorite expressions and cultural references
     const favoriteMovies = personality.favorites.movies.join(', ');
@@ -577,7 +504,7 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
       const uuid = crypto.randomUUID();
       const { url } = await uploadPersonalityToSupabase(personalityTemplate, uuid);
       if (url) {
-        console.log("Successfully uploaded personality to Supabase",url);
+        console.log("Successfully uploaded personality to Supabase", url);
         return {
           message: " All done, we've immortalized the person you've created on the blockchain",
           template: personalityTemplate,
@@ -902,52 +829,6 @@ async function updateSectionWithAI(template: PersonalityTemplate, section: strin
   return template;
 }
 
-// Helper functions to check if sections are empty
-function isPersonalInfoEmpty(personalInfo: any): boolean {
-  return !personalInfo.name.firstName ||
-    !personalInfo.name.lastName ||
-    !personalInfo.dateOfBirth ||
-    !personalInfo.gender;
-}
-
-function isTraitsEmpty(traits: any): boolean {
-  return !traits.personality.mbti ||
-    traits.personality.strengths.length === 0 ||
-    traits.interests.length === 0;
-}
-
-function isFavoritesEmpty(favorites: any): boolean {
-  return favorites.colors.length === 0 ||
-    favorites.foods.length === 0 ||
-    favorites.music.genres.length === 0;
-}
-
-// function isEducationEmpty(education: any): boolean {
-//   return !education.degree || 
-//          !education.university;
-// }
-
-// function isCareerEmpty(career: any): boolean {
-//   return !career.currentPosition || 
-//          !career.company || 
-//          career.skills.length === 0;
-// }
-
-function isLanguagesEmpty(languages: any): boolean {
-  return languages.length === 0 ||
-    !languages[0].name;
-}
-
-function isMemoriesEmpty(memories: any): boolean {
-  return memories.significantEvents.length === 0 ||
-    memories.personalStories.length === 0;
-}
-
-function isRelationshipsEmpty(relationships: any): boolean {
-  return relationships.family.length === 0 ||
-    relationships.friends.length === 0;
-}
-
 /**
  * Uploads a personality template to Supabase storage
  * @param personalityTemplate The personality template to upload
@@ -1026,20 +907,101 @@ export async function checkIfPdaExists(
     // Derive the PDA address using the same seeds as your program
     const [pdaAddress] = PublicKey.findProgramAddressSync(
       [
-        Buffer.from("thegoodplace"), 
+        Buffer.from("thegoodplace"),
         entrySeed.toBuffer()
       ],
       programId
     );
-    
+
     // Check if the account exists
     const accountInfo = await connection.getAccountInfo(pdaAddress);
-    
+
     // If accountInfo is not null, the account exists
     return accountInfo !== null;
   } catch (error) {
     console.error("Error checking PDA existence:", error);
     return false;
+  }
+}
+
+/**
+ * Type definition for the parsed PDA account data
+ */
+export type PersonalTraitsAccount = {
+  address: string;
+  name: string;
+  uri: string;
+  authority: string;
+  bump: number;
+};
+
+/**
+ * Parse data from a PersonalTraits PDA account
+ * @param connection Solana connection
+ * @param entrySeed The entry seed public key
+ * @returns Promise with parsed account data or null if account doesn't exist
+ */
+export async function parsePdaAccountData(
+  connection: Connection,
+  entrySeed: PublicKey
+): Promise<PersonalTraitsAccount | null> {
+  console.log("parsing PDA");
+  const programId = new PublicKey(process.env.NEXT_PUBLIC_THE_GOOD_PLACE_PROGRAM_ID || "");
+  try {
+    // Derive the PDA address using the same seeds as your program
+    const [pdaAddress] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("thegoodplace"),
+        entrySeed.toBuffer()
+      ],
+      programId
+    );
+    
+    // Get the account info
+    const accountInfo = await connection.getAccountInfo(pdaAddress);
+    
+    // If account doesn't exist, return null
+    if (!accountInfo) {
+      return null;
+    }
+    
+    // Parse the account data based on your program's data structure
+    const dataBuffer = accountInfo.data;
+    
+    // Skip discriminator (first 8 bytes)
+    let offset = 8;
+    
+    // Parse name (String - 4 bytes for length + variable content)
+    const nameLength = dataBuffer.readUInt32LE(offset);
+    offset += 4;
+    const name = dataBuffer.slice(offset, offset + nameLength).toString('utf8');
+    offset += nameLength;
+    
+    // Parse uri (String - 4 bytes for length + variable content)
+    const uriLength = dataBuffer.readUInt32LE(offset);
+    offset += 4;
+    const uri = dataBuffer.slice(offset, offset + uriLength).toString('utf8');
+    offset += uriLength;
+    
+    // Parse authority (Pubkey - 32 bytes)
+    const authority = new PublicKey(dataBuffer.slice(offset, offset + 32));
+    offset += 32;
+    
+    // Parse bump (u8 - 1 byte)
+    const bump = dataBuffer[offset];
+    
+    // Return the parsed data
+    return {
+      address: pdaAddress.toString(),
+      name,
+      uri,
+      authority: authority.toString(),
+      bump
+    };
+    
+  } catch (error) {
+    console.error("Error parsing PDA account data:", error);
+    return null;
   }
 }
 
