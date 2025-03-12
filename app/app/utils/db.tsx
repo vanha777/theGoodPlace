@@ -225,13 +225,13 @@ export async function fetchPersonality(url: string): Promise<PersonalityType> {
   try {
     // URL to fetch personality data from
     const personalityUrl = url || 'https://your-default-url.com/personality.json';
-    
+
     const response = await fetch(personalityUrl);
     if (!response.ok) {
       console.warn(`Failed to fetch personality data: ${response.status} ${response.statusText}`);
       return defaultPersonality;
     }
-    
+
     const personalityData = await response.json();
     console.log("response", personalityData);
     return personalityData as PersonalityType;
@@ -439,7 +439,7 @@ export default async function processCommand(transcript: string): Promise<string
     //   modelName: 'gpt-4o-mini',
     //   openAIApiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     // });
-  
+
     // Format personality data for the prompt
     const name = personality.personalInfo.name.preferredName;
     const dateOfPassing = personality.personalInfo.dateOfPassing;
@@ -560,13 +560,33 @@ export default async function processCommand(transcript: string): Promise<string
 
 export async function processCreate(personalityTemplate: PersonalityTemplate, userResponse: string): Promise<{ message: string; template: PersonalityTemplate }> {
   console.log("processing create command");
-  
+
   // Check if user wants to stop
-  if (userResponse.toLowerCase().includes("stop") || userResponse.toLowerCase().includes("exit") || userResponse.toLowerCase().includes("quit")) {
+  if (userResponse.toLowerCase().includes("stop now") || userResponse.toLowerCase().includes("exit chat")) {
     return {
       message: "Creation process stopped. Your template has been saved.",
       template: personalityTemplate
     };
+  }
+
+  if (userResponse.toLowerCase().includes("upload")) {
+    try {
+      const uuid = crypto.randomUUID();
+      await uploadPersonalityToSupabase(personalityTemplate, uuid);
+      console.log("Successfully uploaded personality to Supabase");
+      return {
+        message: " All done, we've immortalized the person you've created on the blockchain",
+        template: personalityTemplate
+      };
+    } catch (error) {
+      console.error("Error uploading personality to Supabase:", error);
+      return {
+        message: "Please edit the person and try again.",
+        template: personalityTemplate
+      };
+    }
+
+
   }
 
   try {
@@ -574,31 +594,31 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
     if (!("_currentSection" in personalityTemplate as any)) {
       (personalityTemplate as any)._currentSection = "start";
     }
-    
+
     const currentSection = (personalityTemplate as any)._currentSection;
     console.log("Current section:", currentSection);
-    
+
     // If this is the first interaction, just ask for personal info
     if (currentSection === "start") {
       const client = new OpenAI({
         apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
         dangerouslyAllowBrowser: true,
       });
-      
+
       // If this isn't just a greeting, process the response as personal info
-      if (userResponse && 
-          !userResponse.toLowerCase().includes("hello") && 
-          !userResponse.toLowerCase().includes("hi") &&
-          !userResponse.toLowerCase().includes("hey") &&
-          !userResponse.toLowerCase().includes("create")) {
-        
+      if (userResponse &&
+        !userResponse.toLowerCase().includes("hello") &&
+        !userResponse.toLowerCase().includes("hi") &&
+        !userResponse.toLowerCase().includes("hey") &&
+        !userResponse.toLowerCase().includes("create")) {
+
         // Update the template with the user's response for personal info
         const updatedTemplate = await updateSectionWithAI(personalityTemplate, "personalInfo", userResponse);
         personalityTemplate = updatedTemplate;
-        
+
         // Move to the next section
         (personalityTemplate as any)._currentSection = "traits";
-        
+
         // Ask for traits
         const response = await client.chat.completions.create({
           model: "o3-mini",
@@ -613,13 +633,13 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
             }
           ],
         });
-        
+
         return {
           message: response.choices[0]?.message?.content || "Thanks! Now tell me about their personality traits, strengths, and interests.",
           template: personalityTemplate
         };
       }
-      
+
       // First interaction - ask for personal info
       const response = await client.chat.completions.create({
         model: "o3-mini",
@@ -634,61 +654,61 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
           }
         ],
       });
-      
+
       return {
         message: response.choices[0]?.message?.content || "Hi! Let's create a personality profile. What's their name, birth date, and gender?",
         template: personalityTemplate
       };
     }
-    
+
     // Process the user's response for the current section
     if (userResponse.trim()) {
       // Update the template with the user's response for the current section
       const updatedTemplate = await updateSectionWithAI(personalityTemplate, currentSection, userResponse);
       personalityTemplate = updatedTemplate;
     }
-    
+
     // Determine the next section to ask about
     const nextSection = getNextSection(currentSection);
-    
+
     // Update the current section
     (personalityTemplate as any)._currentSection = nextSection;
-    
+
     // If we've completed all sections, ask if the user wants to finish or update any section
     if (nextSection === "finish") {
-      const client = new OpenAI({
-        apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-        dangerouslyAllowBrowser: true,
-      });
-      
-      const response = await client.chat.completions.create({
-        model: "o3-mini",
-        messages: [
-          {
-            role: "system",
-            content: `You're helping create a personality profile. Keep your response short and conversational. The user has completed all sections. Ask if they want to finish or update any section. Max 2 sentences.`
-          },
-          {
-            role: "user",
-            content: userResponse
-          }
-        ],
-      });
+      // const client = new OpenAI({
+      //   apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+      //   dangerouslyAllowBrowser: true,
+      // });
 
-      console.log("finish inside processor ");
-      
+      // const response = await client.chat.completions.create({
+      //   model: "o3-mini",
+      //   messages: [
+      //     {
+      //       role: "system",
+      //       content: `You're helping create a personality profile. Keep your response short and conversational. The user has completed all sections. Ask if they want to finish or update any section. Max 2 sentences.`
+      //     },
+      //     {
+      //       role: "user",
+      //       content: userResponse
+      //     }
+      //   ],
+      // });
+
+      console.log("finish inside processor")
+
       return {
-        message: response.choices[0]?.message?.content || "All done! Want to finish up or update anything?",
+        message: "All done! Want to upload or you can edit anything in Button `Person` i've created above?",
         template: personalityTemplate
       };
     }
-    
+
     // Ask for the next section
     const client = new OpenAI({
       apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
       dangerouslyAllowBrowser: true,
     });
-    
+
     // Create section-specific prompts that are short and natural
     let promptContent = "";
     switch (nextSection) {
@@ -710,7 +730,7 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
       default:
         promptContent = `Ask briefly about the ${nextSection} section.`;
     }
-    
+
     const response = await client.chat.completions.create({
       model: "o3-mini",
       messages: [
@@ -724,12 +744,12 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
         }
       ],
     });
-    
+
     return {
       message: response.choices[0]?.message?.content || getDefaultQuestion(nextSection),
       template: personalityTemplate
     };
-    
+
   } catch (error) {
     console.error('Error processing create command:', error);
     return {
@@ -787,7 +807,7 @@ async function updateSectionWithAI(template: PersonalityTemplate, section: strin
     apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
     dangerouslyAllowBrowser: true,
   });
-  
+
   // Extract the current section data
   let sectionData: any;
   switch (section) {
@@ -818,7 +838,7 @@ async function updateSectionWithAI(template: PersonalityTemplate, section: strin
     default:
       return template;
   }
-  
+
   // Ask AI to update the section based on user response
   const response = await client.chat.completions.create({
     model: "o3-mini",
@@ -837,21 +857,21 @@ async function updateSectionWithAI(template: PersonalityTemplate, section: strin
     ],
     response_format: { type: "json_object" },
   });
-  
+
   try {
     const updatedSectionData = JSON.parse(response.choices[0]?.message?.content || "{}");
-    
+
     // Update the template with the new section data
     switch (section) {
       case "personalInfo":
         template.personalInfo = updatedSectionData;
-      break;
+        break;
       case "traits":
         template.traits = updatedSectionData;
-      break;
+        break;
       case "favorites":
         template.favorites = updatedSectionData;
-      break;
+        break;
       // case "education":
       //   template.education = updatedSectionData;
       // break;
@@ -860,39 +880,39 @@ async function updateSectionWithAI(template: PersonalityTemplate, section: strin
       // break;
       case "languages":
         template.languages = updatedSectionData;
-      break;
+        break;
       case "memories":
         template.memories = updatedSectionData;
-      break;
+        break;
       case "relationships":
         template.relationships = updatedSectionData;
-      break;
-  }
+        break;
+    }
   } catch (error) {
     console.error('Error parsing AI response:', error);
   }
-  
+
   return template;
 }
 
 // Helper functions to check if sections are empty
 function isPersonalInfoEmpty(personalInfo: any): boolean {
-  return !personalInfo.name.firstName || 
-         !personalInfo.name.lastName || 
-         !personalInfo.dateOfBirth || 
-         !personalInfo.gender;
+  return !personalInfo.name.firstName ||
+    !personalInfo.name.lastName ||
+    !personalInfo.dateOfBirth ||
+    !personalInfo.gender;
 }
 
 function isTraitsEmpty(traits: any): boolean {
-  return !traits.personality.mbti || 
-         traits.personality.strengths.length === 0 || 
-         traits.interests.length === 0;
+  return !traits.personality.mbti ||
+    traits.personality.strengths.length === 0 ||
+    traits.interests.length === 0;
 }
 
 function isFavoritesEmpty(favorites: any): boolean {
-  return favorites.colors.length === 0 || 
-         favorites.foods.length === 0 || 
-         favorites.music.genres.length === 0;
+  return favorites.colors.length === 0 ||
+    favorites.foods.length === 0 ||
+    favorites.music.genres.length === 0;
 }
 
 // function isEducationEmpty(education: any): boolean {
@@ -907,16 +927,78 @@ function isFavoritesEmpty(favorites: any): boolean {
 // }
 
 function isLanguagesEmpty(languages: any): boolean {
-  return languages.length === 0 || 
-         !languages[0].name;
+  return languages.length === 0 ||
+    !languages[0].name;
 }
 
 function isMemoriesEmpty(memories: any): boolean {
-  return memories.significantEvents.length === 0 || 
-         memories.personalStories.length === 0;
+  return memories.significantEvents.length === 0 ||
+    memories.personalStories.length === 0;
 }
 
 function isRelationshipsEmpty(relationships: any): boolean {
-  return relationships.family.length === 0 || 
-         relationships.friends.length === 0;
+  return relationships.family.length === 0 ||
+    relationships.friends.length === 0;
+}
+
+/**
+ * Uploads a personality template to Supabase storage
+ * @param personalityTemplate The personality template to upload
+ * @param filename The name to save the file as (without extension)
+ * @returns Object containing success status and message or error
+ */
+export async function uploadPersonalityToSupabase(
+  personalityTemplate: PersonalityTemplate,
+  filename: string
+): Promise<{ success: boolean; message: string; url?: string }> {
+  try {
+    // Remove any internal tracking properties before saving
+    const templateToSave = { ...personalityTemplate };
+    if ('_currentSection' in templateToSave as any) {
+      delete (templateToSave as any)._currentSection;
+    }
+
+    // Convert the template to a JSON string
+    const jsonData = JSON.stringify(templateToSave, null, 2);
+
+    // Create a Blob from the JSON string
+    const blob = new Blob([jsonData], { type: 'application/json' });
+
+    // Sanitize filename - remove spaces and special characters
+    const sanitizedFilename = filename.replace(/[^a-zA-Z0-9]/g, '') || 'personality';
+    const fullFilename = `${sanitizedFilename}.json`;
+
+    // Upload to Supabase storage
+    const { data, error } = await Db.storage
+      .from('general')
+      .upload(fullFilename, blob, {
+        cacheControl: '3600',
+        upsert: true // Overwrite if file exists
+      });
+
+    if (error) {
+      console.error('Error uploading personality template:', error);
+      return {
+        success: false,
+        message: `Failed to upload: ${error.message}`
+      };
+    }
+
+    // Get the public URL for the uploaded file
+    const { data: urlData } = Db.storage
+      .from('general')
+      .getPublicUrl(fullFilename);
+
+    return {
+      success: true,
+      message: 'Personality template uploaded successfully!',
+      url: urlData.publicUrl
+    };
+  } catch (error) {
+    console.error('Error in uploadPersonalityToSupabase:', error);
+    return {
+      success: false,
+      message: `An unexpected error occurred: ${error instanceof Error ? error.message : String(error)}`
+    };
+  }
 }

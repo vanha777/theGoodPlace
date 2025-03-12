@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import processCommand, { PersonalityTemplate, processCreate } from '@/app/utils/db'
+import processCommand, { PersonalityTemplate, processCreate, uploadPersonalityToSupabase } from '@/app/utils/db'
 import idl from "../../../target/idl/the_good_place.json";
 import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react"
 import { PublicKey, Keypair, SystemProgram, Transaction, VersionedTransaction } from "@solana/web3.js";
@@ -9,6 +9,7 @@ import { AnchorProvider, Program } from "@coral-xyz/anchor";
 import * as anchor from "@coral-xyz/anchor";
 import { sha256 } from 'js-sha256';
 import { createHash } from 'crypto';
+import UpdateOverlay from '../update';
 type Message = {
   role: 'user' | 'assistant'
   content: string
@@ -31,6 +32,7 @@ export default function ChatSimulatorV2({
   const { connection } = useConnection();
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
+  const [overlay, setOverlay] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -123,6 +125,26 @@ export default function ChatSimulatorV2({
     }
 
   }
+
+  const handleUpdate = async (updatedTemplate: PersonalityTemplate) => {
+    console.log("handleUpdate", updatedTemplate);
+    setPersonData(updatedTemplate);
+    setIsLoading(true);
+    talkingView();
+    // Upload the updated template to Supabase
+    try {
+      const uuid = crypto.randomUUID();
+      await uploadPersonalityToSupabase(updatedTemplate, uuid);
+      console.log("Successfully uploaded updated personality to Supabase");
+    } catch (error) {
+      console.error("Error uploading personality to Supabase:", error);
+      // You might want to show an error message to the user here
+    } finally {
+      setIsLoading(false);
+      setMessages(prev => [...prev, { role: 'assistant', content: "Successfully uploaded updated personality to Supabase" }]);
+    }
+    // setOverlay(false);
+  };
 
   const createPerson = async () => {
     console.log("create person 0");
@@ -350,6 +372,13 @@ export default function ChatSimulatorV2({
 
   return (
     <div className="relative w-full max-w-2xl mx-auto overflow-hidden z-50">
+      {personData && overlay && action === "create" && (
+        <UpdateOverlay
+          template={personData}
+          onClose={() => setOverlay(false)}
+          onSubmit={handleUpdate}
+        />
+      )}
 
       <div className="flex space-x-2 p-2">
         <button
@@ -366,6 +395,15 @@ export default function ChatSimulatorV2({
         >
           Update Person
         </button>
+        {personData && action === "create" && (
+          <button
+            onClick={() => setOverlay(true)}
+            disabled={isLoading}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+          >
+            Person
+          </button>
+        )}
       </div>
 
       {/* Chat messages - limited to last 3-4 messages */}
