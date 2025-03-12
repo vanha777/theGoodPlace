@@ -98,7 +98,7 @@ export default function About() {
                     />
                     <div className="absolute bottom-0 left-0 right-0 bg-black/50 backdrop-blur-sm p-4 text-center text-sm text-white">
                       <p className="font-medium">Saturn Labs - Saturn Foundation</p>
-                      <p className="text-gray-300">2024 all rights reserved</p>
+                      <p className="text-gray-300">2025 all rights reserved</p>
                       <a
                         href="https://www.saturnlabs.dev/"
                         target="_blank"
@@ -177,7 +177,7 @@ export default function About() {
                   Why Now?
                 </h2>
                 <p className="text-gray-200">
-                  MetaLoot was a finalist in the Bangkok EthGlobal Hackathon 2024. Presumably, we think people need this service.
+                  MetaLoot was a finalist in the Bangkok EthGlobal Hackathon 2025. Presumably, we think people need this service.
                 </p>
               </div>
               <div className="w-full md:w-1/2 relative aspect-[16/12]">

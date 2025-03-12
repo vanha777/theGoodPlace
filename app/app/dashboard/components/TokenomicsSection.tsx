@@ -54,7 +54,7 @@ export default function TokenomicsSection({ selectedGame }: { selectedGame: Game
             {auth.tokenData?.name || 'Crypto Project'}
           </h1>
           <p className="text-white/40 text-lg">
-            {auth.tokenData?.description || '2024'}
+            {auth.tokenData?.description || '2025'}
           </p>
         </div>
 

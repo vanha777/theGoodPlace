@@ -37,14 +37,14 @@ export default function WebhookSection({ selectedGame }: { selectedGame: GameDat
           url: 'https://api.example.com/webhook1',
           events: ['game.created', 'game.updated'],
           status: 'active',
-          createdAt: '2024-03-20'
+          createdAt: '2025-03-20'
         },
         {
           id: '2',
           url: 'https://api.example.com/webhook2',
           events: ['transaction.completed'],
           status: 'inactive',
-          createdAt: '2024-03-19'
+          createdAt: '2025-03-19'
         }
       ]);
     };

@@ -27,7 +27,7 @@ const SSOLogin = () => {
     //       genre: 'Action',
     //       publisher: 'Test Publisher',
     //       photo: 'https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/demo.jpg',
-    //       releaseDate: '2024-03-15'
+    //       releaseDate: '2025-03-15'
     //     },
     //     {
     //         id: '0x1234567890123456789012345678901234567891',
@@ -35,7 +35,7 @@ const SSOLogin = () => {
     //       genre: 'Adventure',
     //       publisher: 'Test Publisher 2',
     //       photo: 'https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/cuttherope',
-    //       releaseDate: '2024-04-20'
+    //       releaseDate: '2025-04-20'
     //     },
     //     {
     //         id: '0x1234567890123456789012345678901234567892',
@@ -43,7 +43,7 @@ const SSOLogin = () => {
     //       genre: 'RPG',
     //       publisher: 'Test Publisher 3',
     //       photo: 'https://tzqzzuafkobkhygtccse.supabase.co/storage/v1/object/public/biz_touch/crypto-ql/uncleahmed',
-    //       releaseDate: '2024-05-10'
+    //       releaseDate: '2025-05-10'
     //     }
     // ]);
     // try {

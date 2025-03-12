@@ -131,8 +131,9 @@ const CrystallViewer = forwardRef<{
                     ) : (
                         <div className="text-center p-6 backdrop-blur-sm bg-black/30 max-w-md mx-auto rounded-lg">
                             {/* <h2 className="text-2xl font-light text-white mb-3">Connect to Experience</h2> */}
-                            <p className="text-gray-400 mb-5 text-sm">Immortalizes your digital self on the blockchain</p>
-                            <WalletMultiButtonDynamic
+                            <p className="text-gray-400 mb-5 text-sm">Interract with your love ones</p>
+                            <p className="text-gray-400 mb-5 text-sm">Coming Soon</p>
+                            {/* <WalletMultiButtonDynamic
                                 style={{
                                     // background: "linear-gradient(to right, #00ffe1, #00d9ff, #00a3ff)",
                                     background: "transparent",
@@ -150,7 +151,7 @@ const CrystallViewer = forwardRef<{
                                     gap: "8px",
                                     backdropFilter: "blur(4px)"
                                 }}
-                            />
+                            /> */}
                         </div>
                     )}
                 </div>

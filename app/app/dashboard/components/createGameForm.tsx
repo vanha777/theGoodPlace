@@ -252,7 +252,7 @@ export default function CreateGameForm({ setIsCreateOverlayOpen }: CreateGameFor
                             <h1 className="text-white text-5xl font-light tracking-wider">
                                 {formData.name || 'New Game'}
                             </h1>
-                            <p className="text-white/40 text-xl">{formData.releaseDate || '2024'}</p>
+                            <p className="text-white/40 text-xl">{formData.releaseDate || '2025'}</p>
                         </div>
 
                         {/* Form Steps */}

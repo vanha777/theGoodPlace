@@ -11,16 +11,16 @@ config.autoAddCss = false
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'TheGoodPlace - Build Founder Conviction Before Code',
-  description: 'TheGoodPlace is an AI-driven platform designed to help founders and entrepreneurs build conviction around their ideas through validation.',
+  title: 'TheGoodPlace - Store digital memories of your love one for eternity',
+  description: 'The Good Place is where you can store digital memories of your love one for eternity and interract with them.',
   openGraph: {
-    title: 'TheGoodPlace - Build Founder Conviction Before Code',
-    description: 'TheGoodPlace is an AI-driven platform designed to help founders and entrepreneurs build conviction around their ideas through validation.',
+    title: 'TheGoodPlace - Store digital memories of your love one for eternity',
+    description: 'The Good Place is where you can store digital memories of your love one for eternity and interract with them.',
     // url: 'https://www.TheGoodPlace.com/',
     images: [
       {
         url: 'https://vbfejmafjqgcfrzxewcd.supabase.co/storage/v1/object/public/general//colaunchit.jpeg',
-        alt: 'TheGoodPlace - Build Founder Conviction Before Code',
+        alt: 'TheGoodPlace - Store digital memories of your love one for eternity',
       },
     ],
   },

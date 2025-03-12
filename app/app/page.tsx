@@ -36,14 +36,14 @@ export default function Home() {
       <Suspense fallback={<div className="bg-black text-gray-200">Loading...</div>}>
         <main className="bg-black min-h-screen relative text-gray-200">
           <title>TheGoodPlace - Build Founder Conviction Before Code</title>
-          {/* <NavBar />
+          {/* <NavBar /> */}
           <Landing />
-          <Partner /> */}
+          <Partner />
           <div className=' bg-black'>
           <CrystallViewer />
           </div>
-          {/* <Roadmap />
-          <Footer /> */}
+          <Roadmap />
+          {/* <Footer /> */}
         </main>
       </Suspense>
     </WalletConnectionProvider>

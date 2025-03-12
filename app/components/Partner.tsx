@@ -1,39 +1,31 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 
-export default function Partner() {
-  const testimonials = [
+export default function TheGoodPlace() {
+  const pinpoints = [
     {
-      name: "Sarah Chen",
-      role: "Founder, SupplyChainX",
-      quote: "TheGoodPlace helped me validate my supply chain optimization idea before writing a single line of code. The evidence it helped me gather convinced my first investors.",
-      image: "/founder2.jpeg"
+      "question": "What if their voice could stay with you forever?",
+      "description": "Preserve every laugh, piece of wisdom, and comforting word in a digital sanctuary that never fades."
     },
     {
-      name: "Michael Rodriguez",
-      role: "Founder, HealthTech Solutions",
-      quote: "I was about to build an app nobody wanted. TheGoodPlace forced me to focus on real customer pain points and build evidence for my solution first.",
-      image: "/patrick.jpeg"
+      "question": "Do you miss their jokes and wish you could hear them again?",
+      "description": "Archive every punchline and whimsical comment—revisit those joyful moments whenever you need a lift."
     },
     {
-      name: "Aisha Patel",
-      role: "Founder, EduLearn",
-      quote: "The focused direction TheGoodPlace provided helped me channel my energy into validating my edtech idea with real teachers before spending resources on development.",
-      image: "/founder3.jpeg"
+      "question": "What about their legacy?",
+      "description": "A life doesn't end when someone passes away. Transform fleeting memories into an everlasting keepsake, just a tap away."
     },
     {
-      name: "David Kim",
-      role: "Founder, ClimateTech",
-      quote: "TheGoodPlace helped me build unwavering belief in my sustainability platform by focusing on evidence and validation first. It changed my entire approach to building.",
-      image: "/founder4.jpeg"
+      "question": "What is TheGoodPlace all about?",
+      "description": "We stand against social platforms that erase a loved one’s digital footprint, ensuring their memory remains alive."
     }
   ]
 
+
   return (
     <section className="bg-black via-gray-800 to-gray-900 relative overflow-hidden py-24">
-      {/* Background blurs similar to footer */}
+      {/* Background blurs */}
       <div className="absolute inset-0">
         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-gradient-to-r from-[#00ffe1] to-[#00a3ff] rounded-full filter blur-[120px] opacity-10" />
         <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-gradient-to-r from-[#00ffe1] to-[#00a3ff] rounded-full filter blur-[120px] opacity-10" />
@@ -48,16 +40,16 @@ export default function Partner() {
         >
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             <span className="bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] bg-clip-text text-transparent">
-              Founders Who Built With Conviction
+              Keep Them Close, Forever
             </span>
           </h2>
           <p className="text-gray-300 max-w-2xl mx-auto">
-            See how founders used TheGoodPlace to validate their ideas and build unwavering belief in their vision.
+            TheGoodPlace lets you hold onto the ones you love—digitally, eternally, effortlessly.
           </p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {testimonials.map((testimonial, index) => (
+          {pinpoints.map((pinpoint, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
@@ -65,23 +57,8 @@ export default function Partner() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-lg p-6 border border-gray-700"
             >
-              <div className="flex items-start gap-4">
-                <div className="relative w-16 h-16 flex-shrink-0 rounded-full overflow-hidden">
-                  <Image
-                    src={testimonial.image}
-                    alt={testimonial.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div>
-                  <p className="text-gray-300 italic mb-4">"{testimonial.quote}"</p>
-                  <div>
-                    <h3 className="font-medium bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] bg-clip-text text-transparent">{testimonial.name}</h3>
-                    <p className="text-sm text-gray-400">{testimonial.role}</p>
-                  </div>
-                </div>
-              </div>
+              <h3 className="text-lg font-semibold text-[#00d9ff] mb-2">{pinpoint.question}</h3>
+              <p className="text-gray-300">{pinpoint.description}</p>
             </motion.div>
           ))}
         </div>
@@ -93,14 +70,15 @@ export default function Partner() {
           className="mt-16 text-center"
         >
           <h3 className="font-bold text-xl text-gray-200 mb-6">
-            Join 1,000+ founders building with conviction
+            Non-profit product
           </h3>
           <motion.button
+            disabled
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="px-8 py-3 bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] text-gray-900 font-medium rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
           >
-            Start Building Conviction
+            Comming soon
           </motion.button>
         </motion.div>
       </div>

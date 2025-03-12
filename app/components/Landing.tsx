@@ -34,7 +34,7 @@ export default function Landing() {
               </span>
             </h1>
             <p className="text-gray-800 text-lg max-w-lg mb-8">
-              Your lovely ones will be remembered. All the memorals are on one website.
+              Your lovely ones will be remembered. All the memorals are stored internally.
             </p>
           </div>
         </motion.div>
