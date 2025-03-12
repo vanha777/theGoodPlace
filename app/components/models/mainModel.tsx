@@ -1,7 +1,7 @@
 // components/ModelViewer.tsx
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
-import { Suspense, useState, useImperativeHandle, forwardRef } from "react";
+import { Suspense, useState, useImperativeHandle, forwardRef, useEffect } from "react";
 import { CrystallBall } from "./crystallBall";
 import ChatSimulatorV2 from "./ChatSimulatorV2";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react"
@@ -49,6 +49,14 @@ const CrystallViewer = forwardRef<{
     // Add state to manage camera position and speed
     const [currentSpeed, setCurrentSpeed] = useState(speed);
     const [currentCameraPosition, setCurrentCameraPosition] = useState<[number, number, number]>(cameraPosition);
+
+    useEffect(() => {
+        if (action === "talk") {
+            setCurrentCameraPosition([0, 0, 16]);
+        } else if (action === "create") {
+            setCurrentCameraPosition([0, 0, 2.5]);
+        }
+    }, [action])
 
     const createUpdateView = () => {
         setCurrentSpeed(1);

@@ -410,7 +410,7 @@ export default function ChatSimulatorV2({
         />
       )}
 
-      <div className="flex space-x-2 p-2">
+      {/* <div className="flex space-x-2 p-2"> */}
         {/* <button
           onClick={createPerson}
           disabled={isLoading}
@@ -434,7 +434,7 @@ export default function ChatSimulatorV2({
             Person
           </button>
         )}
-      </div>
+      {/* </div> */}
 
       {/* Chat messages - limited to last 3-4 messages */}
       <div className="max-h-32 overflow-y-auto p-2 space-y-2">
