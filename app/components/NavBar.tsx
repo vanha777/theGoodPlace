@@ -28,12 +28,12 @@ export default function NavBar() {
         <motion.nav
             initial={{ y: -100 }}
             animate={{ y: 0 }}
-            className="top-0 w-full z-50"
+            className="top-0 w-full z-50 bg-white"
         >
             {/* Background with light theme matching Landing */}
             <div className="absolute inset-0 bg-[#f5f9fa]">
                 {/* Subtle gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[#00ffe1]/10 via-[#00d9ff]/10 to-[#00a3ff]/10" />
+                <div className="absolute inset-0 " />
             </div>
 
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -42,10 +42,10 @@ export default function NavBar() {
                     <Link href="/" className="flex items-center gap-2">
                         {/* <div className="w-10 h-10 rounded-md bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] flex items-center justify-center shadow-[0_0_10px_rgba(0,217,255,0.5)] hover:scale-105 transition-transform p-1.5"> */}
                         <Image
-                            src="/apple.png"
+                            src="/apple2.png"
                             alt="The Good Place Logo"
-                            width={58}
-                            height={58}
+                            width={68}
+                            height={68}
                             className="object-contain"
                         />
                         {/* </div> */}
@@ -53,7 +53,7 @@ export default function NavBar() {
 
                     {/* Navigation Links */}
                     <div className="hidden md:flex items-center space-x-8">
-                        <span className="text-xl font-serif italic text-gray-700 font-medium">
+                        <span className="text-xl font-serif italic font-medium tracking-wide bg-gradient-to-r from-blue-400 via-cyan-500 to-blue-400 bg-clip-text text-transparent drop-shadow-sm animate-pulse">
                             Your lovely ones will be remembered
                         </span>
                     </div>

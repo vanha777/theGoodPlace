@@ -39,13 +39,13 @@ export default function Home() {
           <main className="bg-black min-h-screen relative text-gray-200">
             <title>TheGoodPlace - Build Founder Conviction Before Code</title>
             <NavBar />
-            {/* <Landing />
-          <Partner /> */}
+            <Landing />
+          <Partner />
             <div className=' bg-black'>
               <CrystallViewer />
             </div>
-            {/* <Roadmap /> */}
-            {/* <Footer /> */}
+            <Roadmap />
+            <Footer />
           </main>
         </Suspense>
       </AppProvider>
