@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import processCommand from '@/app/utils/db'
-import idl from "../../target/idl/the_good_place.json";
+import idl from "./models/the_good_place.json";
 import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react"
 import { PublicKey, Keypair, SystemProgram, Transaction, VersionedTransaction } from "@solana/web3.js";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
