@@ -25,11 +25,11 @@ export const metadata: Metadata = {
     ],
   },
   icons: {
-    icon: '/logo.png',
+    icon: '/apple2.png',
     // You can also specify different sizes
     apple: [
-      { url: '/logo.png' },
-      { url: '/apple.png', sizes: '180x180' }
+      { url: '/apple2.png' },
+      { url: '/apple2.png', sizes: '180x180' }
     ],
     shortcut: '/favicon.ico'
   },
@@ -78,8 +78,9 @@ export default function RootLayout({
         <meta property="og:type" content="website" />
       </Head>
       <body suppressHydrationWarning={true} className={inter.className}>
-        {children}
         <Analytics />
+        {children}
+        {/* </AppProvider> */}
       </body>
     </html>
   )

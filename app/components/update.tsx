@@ -76,8 +76,8 @@ const UpdateOverlay: React.FC<UpdateOverlayProps> = ({ template, onClose, onSubm
   const updateLanguages = (index: number, field: string, value: string) => {
     setUpdatedTemplate(prev => {
       const newTemplate = { ...prev };
-      newTemplate.languages[index] = {
-        ...newTemplate.languages[index],
+      newTemplate.languages.language[index] = {
+        ...newTemplate.languages.language[index],
         [field]: value
       };
       return newTemplate;
@@ -87,7 +87,7 @@ const UpdateOverlay: React.FC<UpdateOverlayProps> = ({ template, onClose, onSubm
   const addLanguage = () => {
     setUpdatedTemplate(prev => {
       const newTemplate = { ...prev };
-      newTemplate.languages.push({ name: null, proficiency: null });
+      newTemplate.languages.language.push({ name: null, proficiency: null });
       return newTemplate;
     });
   };
@@ -95,7 +95,7 @@ const UpdateOverlay: React.FC<UpdateOverlayProps> = ({ template, onClose, onSubm
   const removeLanguage = (index: number) => {
     setUpdatedTemplate(prev => {
       const newTemplate = { ...prev };
-      newTemplate.languages.splice(index, 1);
+      newTemplate.languages.language.splice(index, 1);
       return newTemplate;
     });
   };
@@ -410,7 +410,7 @@ const UpdateOverlay: React.FC<UpdateOverlayProps> = ({ template, onClose, onSubm
                 <div className="space-y-4">
                   <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">Languages</h3>
                   
-                  {updatedTemplate.languages.map((language, index) => (
+                  {updatedTemplate.languages.language.map((language, index) => (
                     <div key={index} className="p-3 border rounded-md mb-3">
                       <div className="flex justify-between mb-2">
                         <h4 className="font-medium">Language {index + 1}</h4>

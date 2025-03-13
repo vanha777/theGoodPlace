@@ -41,6 +41,8 @@
     "react-dom": "^19.0.0",
     "react-icons": "^5.4.0",
     "react-responsive": "^10.0.0",
+    "react-spring": "^9.7.5",
+    "react-three": "^0.9.7",
     "sharp": "^0.33.5",
     "three": "^0.170.0",
     "three-stdlib": "^2.34.0"

@@ -1,11 +1,13 @@
 // components/ModelViewer.tsx
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
-import { Suspense, useState, useImperativeHandle, forwardRef } from "react";
+import { Suspense, useState, useImperativeHandle, forwardRef, useEffect } from "react";
+import { useSpring, animated } from "@react-spring/three";
 import { CrystallBall } from "./crystallBall";
 import ChatSimulatorV2 from "./ChatSimulatorV2";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import { WalletMultiButtonDynamic } from "../NavBar";
+
 interface CrystallViewerProps {
     animationName?: string;
     playing?: boolean;
@@ -25,6 +27,9 @@ interface CrystallViewerProps {
 // talking - cameraPosition = [0, 0, 2.5],
 // loading -  speed = 1,
 // not loading  -  speed = 0.2,
+
+// First, create an animated camera component
+const AnimatedPerspectiveCamera = animated(PerspectiveCamera);
 
 const CrystallViewer = forwardRef<{
     createUpdateView: () => void;
@@ -48,34 +53,53 @@ const CrystallViewer = forwardRef<{
     const [action, setAction] = useState("talk");
     // Add state to manage camera position and speed
     const [currentSpeed, setCurrentSpeed] = useState(speed);
-    const [currentCameraPosition, setCurrentCameraPosition] = useState<[number, number, number]>(cameraPosition);
+
+    // Use spring for smooth camera animation
+    const [cameraProps, setCameraProps] = useSpring(() => ({
+        position: cameraPosition,
+        fov: cameraFov,
+        config: { mass: 1, tension: 120, friction: 14 }, // Adjust for desired feel
+    }));
+
+    useEffect(() => {
+        if (action === "talk") {
+            setCameraProps({ position: [0, 0, 16] });
+        } else if (action === "create") {
+            setCameraProps({ position: [0, 0, 3] });
+        }
+    }, [action, setCameraProps]);
 
     const createUpdateView = () => {
         setCurrentSpeed(1);
-        // wait 2 seconds
+        // First transition
+        setCameraProps({ position: [0, 0, 5] }); // Intermediate position
+
+        // Second transition after delay
         setTimeout(() => {
-            setCurrentCameraPosition([0, 0, 0.8]);
+            setCameraProps({ position: [0, 0, 0.8] });
             setCurrentSpeed(0.2);
-        }, 2000);
-    }
+        }, 1000);
+    };
 
     const resetView = () => {
         setCurrentSpeed(1);
-        // wait 2 seconds
+        // Smooth transition back
+        setCameraProps({ position: [0, 0, 16] });
+
         setTimeout(() => {
-            setCurrentCameraPosition([0, 0, 16]);
             setCurrentSpeed(0.2);
-        }, 2000);
-    }
+        }, 1000);
+    };
 
     const talkingView = () => {
         setCurrentSpeed(1);
-        // wait 2 seconds
+        // Smooth transition to talking view
+        // setCameraProps({ position: [0, 0, 2.5] });
+
         setTimeout(() => {
-            // setCurrentCameraPosition([0, 0, 2.5]);
             setCurrentSpeed(0.2);
-        }, 2000);
-    }
+        }, 1000);
+    };
 
     // Export functions if needed
     useImperativeHandle(ref, () => ({
@@ -89,27 +113,27 @@ const CrystallViewer = forwardRef<{
             <div className="w-full relative h-full bg-black pt-40 pb-40">
                 <>
                     <div className="flex justify-center gap-4 mb-6">
-                        <button 
-                            onClick={() => setAction("talk")} 
+                        <button
+                            onClick={() => setAction("talk")}
                             className={`px-4 py-2 rounded-lg transition-all ${action === "talk" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
                         >
                             Communicate
                         </button>
-                        <button 
-                            onClick={() => setAction("create")} 
+                        <button
+                            onClick={() => setAction("create")}
                             className={`px-4 py-2 rounded-lg transition-all ${action === "create" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
                         >
-                            Adjust
+                            Create
                         </button>
                     </div>
                 </>
                 <div className="w-full h-[800px]">
                     <Canvas className="bg-black" gl={{ alpha: false }}>
-                        {/* Configurable camera */}
-                        <PerspectiveCamera
+                        {/* Animated camera */}
+                        <AnimatedPerspectiveCamera
                             makeDefault
-                            position={currentCameraPosition}
-                            fov={cameraFov}
+                            position={cameraProps.position}
+                            fov={cameraProps.fov}
                         />
                         {/* Lighting */}
                         <ambientLight />
@@ -133,7 +157,7 @@ const CrystallViewer = forwardRef<{
                             {/* <h2 className="text-2xl font-light text-white mb-3">Connect to Experience</h2> */}
                             <p className="text-gray-400 mb-5 text-sm">Interract with your love ones</p>
                             <p className="text-gray-400 mb-5 text-sm">Coming Soon</p>
-                            {/* <WalletMultiButtonDynamic
+                            <WalletMultiButtonDynamic
                                 style={{
                                     // background: "linear-gradient(to right, #00ffe1, #00d9ff, #00a3ff)",
                                     background: "transparent",
@@ -151,7 +175,7 @@ const CrystallViewer = forwardRef<{
                                     gap: "8px",
                                     backdropFilter: "blur(4px)"
                                 }}
-                            /> */}
+                            />
                         </div>
                     )}
                 </div>

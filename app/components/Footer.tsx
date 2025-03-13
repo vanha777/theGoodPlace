@@ -20,14 +20,9 @@ export default function Footer() {
             whileInView={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <span className="text-2xl font-extrabold tracking-tight flex items-center">
-              <div className="mr-2 w-8 h-8 rounded-md bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] flex items-center justify-center text-gray-900 text-xs font-bold">
-                TGP
-              </div>
-              <span className="bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] bg-clip-text text-transparent">
-                TheGood<span className="text-3xl">Place</span>
-              </span>
-            </span>
+            <div className="mr-2 w-16 h-16 rounded-md flex items-center justify-center">
+              <img src="/apple2.png" alt="Apple Logo" className="w-full h-full object-contain" />
+            </div>
           </motion.div>
 
           {/* Quote */}
@@ -50,7 +45,7 @@ export default function Footer() {
               href="/dashboard"
               className="inline-block bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] text-gray-900 px-6 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity shadow-md hover:shadow-lg"
             >
-              Try For Free
+              For non-profits
             </Link>
           </motion.div>
         </div>

@@ -1,13 +1,12 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import processCommand from '@/app/utils/db'
+import processCommand, { fetchPersonality } from '@/app/utils/db'
 import idl from "./models/the_good_place.json";
 import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react"
 import { PublicKey, Keypair, SystemProgram, Transaction, VersionedTransaction } from "@solana/web3.js";
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
-import * as anchor from "@coral-xyz/anchor";
-import { sha256 } from 'js-sha256';
+import { useAppContext } from '@/app/utils/AppContext';
 import { createHash } from 'crypto';
 type Message = {
   role: 'user' | 'assistant'
@@ -15,6 +14,7 @@ type Message = {
 }
 
 export default function ChatSimulator() {
+  const { userData, setUserData } = useAppContext();
   const { publicKey, connected, connect, disconnect, signMessage, wallet, signTransaction, signAllTransactions } = useWallet();
   const { connection } = useConnection();
   const [messages, setMessages] = useState<Message[]>([])
@@ -60,10 +60,19 @@ export default function ChatSimulator() {
     setIsLoading(true)
 
     try {
-      // Use processCommand to get real response
-      const response = await processCommand(input)
-      const aiMessage: Message = { role: 'assistant', content: response }
-      setMessages(prev => [...prev, aiMessage])
+      if (userData.personality != null) {
+        // Use processCommand to get real response
+        const response = await processCommand(input, userData.personality)
+        const aiMessage: Message = { role: 'assistant', content: response }
+        setMessages(prev => [...prev, aiMessage])
+      } else {
+        const key = publicKey?.toBase58();
+        const personality = await fetchPersonality(key || "");
+        setUserData({ personality: personality })
+        const response = await processCommand(input, personality)
+        const aiMessage: Message = { role: 'assistant', content: response }
+        setMessages(prev => [...prev, aiMessage])
+      }
     } catch (error) {
       console.error('Error processing command:', error)
       const errorMessage: Message = {
