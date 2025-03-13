@@ -11,5 +11,4 @@ test-ledger
 .env.development.local
 .env.test.local
 .env.production.local
-bun.lockb
 yarn.lock
