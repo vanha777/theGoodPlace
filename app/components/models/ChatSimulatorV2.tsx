@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import processCommand, { checkIfPdaExists, PersonalityTemplate, processCreate, uploadPersonalityToSupabase } from '@/app/utils/db'
+import processCommand, { checkIfPdaExists, PersonalityTemplate, processCreate, textToSpeech, uploadPersonalityToSupabase } from '@/app/utils/db'
 import idl from "../models/the_good_place.json";
 import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react"
 import { PublicKey, Keypair, SystemProgram, Transaction, VersionedTransaction } from "@solana/web3.js";
@@ -40,7 +40,22 @@ export default function ChatSimulatorV2({
 
   useEffect(() => {
     console.log("chatAction changing", action);
-    setMessages([{ role: 'assistant', content: "Please start by typing" }])
+    let message;
+    if (action === "create") {
+      message = "Let's create your digital twin."
+    } 
+    else {
+      message = "Let's interact with your digital twin."
+    }
+    const playAudio = async () => {
+      const audioUrl = await textToSpeech(message);
+      if (audioUrl.success) {
+        const audioElement = new Audio(audioUrl.audioUrl);
+        audioElement.play();
+      }
+    }
+    playAudio();
+    setMessages([{ role: 'assistant', content: message || "....." }])
     setInput('')
   }, [action]);
 
@@ -79,6 +94,11 @@ export default function ChatSimulatorV2({
       setPersonData(result.template);
 
       // Add AI response to messages
+      const audioUrl = await textToSpeech(result.message);
+      if (audioUrl.success) {
+        const audioElement = new Audio(audioUrl.audioUrl);
+        audioElement.play();
+      }
       const aiMessage: Message = { role: 'assistant', content: result.message }
       setMessages(prev => [...prev, aiMessage])
 
@@ -132,6 +152,11 @@ export default function ChatSimulatorV2({
         // Use processCommand to get real response
         const response = await processCommand(input, userData.personality)
         const aiMessage: Message = { role: 'assistant', content: response }
+        const audioUrl = await textToSpeech(response);
+        if (audioUrl.success) {
+          const audioElement = new Audio(audioUrl.audioUrl);
+          audioElement.play();
+        }
         setMessages(prev => [...prev, aiMessage])
       } catch (error) {
         console.error('Error processing command:', error)

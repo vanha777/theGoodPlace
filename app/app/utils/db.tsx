@@ -1005,3 +1005,124 @@ export async function parsePdaAccountData(
   }
 }
 
+/**
+ * Converts text to speech using a text-to-speech API
+ * @param text The text to convert to speech
+ * @param voice Optional voice ID or name to use (defaults to a standard voice)
+ * @returns Promise with the audio URL or null if conversion failed
+ */
+export async function textToSpeech(
+  text: string,
+  voice?: string
+): Promise<{ success: boolean; audioUrl?: string; error?: string }> {
+  try {
+    if (!text.trim()) {
+      return {
+        success: false,
+        error: "Text cannot be empty"
+      };
+    }
+
+    // Use OpenAI's TTS API
+    const openai = new OpenAI({
+      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+      dangerouslyAllowBrowser: true,
+    });
+
+    // Default voice if not specified
+    const voiceId = voice || "alloy"; // OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
+
+    // Call the OpenAI TTS API
+    const response = await openai.audio.speech.create({
+      model: "tts-1",
+      voice: voiceId as "alloy" | "ash" | "coral" | "echo" | "fable" | "onyx" | "nova" | "sage" | "shimmer",
+      input: text,
+    });
+
+    // Convert the response to a blob
+    const blob = await response.blob();
+    
+    // Create a URL for the audio blob
+    const audioUrl = URL.createObjectURL(blob);
+
+    return {
+      success: true,
+      audioUrl
+    };
+  } catch (error) {
+    console.error('Error in text-to-speech conversion:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
+// Alternative implementation using ElevenLabs if you prefer
+export async function textToSpeechElevenLabs(
+  text: string,
+  voiceId?: string
+): Promise<{ success: boolean; audioUrl?: string; error?: string }> {
+  try {
+    if (!text.trim()) {
+      return {
+        success: false,
+        error: "Text cannot be empty"
+      };
+    }
+
+    const apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
+    if (!apiKey) {
+      return {
+        success: false,
+        error: "ElevenLabs API key is missing"
+      };
+    }
+
+    // Default voice if not specified (using ElevenLabs default voice ID)
+    const voice = voiceId || "21m00Tcm4TlvDq8ikWAM"; // Default ElevenLabs voice
+
+    // Call the ElevenLabs API
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voice}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "xi-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          text,
+          model_id: "eleven_monolingual_v1",
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.5,
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to convert text to speech");
+    }
+
+    // Get the audio data
+    const audioBlob = await response.blob();
+    
+    // Create a URL for the audio blob
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    return {
+      success: true,
+      audioUrl
+    };
+  } catch (error) {
+    console.error('Error in ElevenLabs text-to-speech conversion:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
