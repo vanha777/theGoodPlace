@@ -66,7 +66,9 @@ export default function ChatSimulatorV2({
       }
     }
     playAudio();
-    setMessages([{ role: 'assistant', content: message || "....." }])
+    setMessages([
+      { role: 'assistant', content: message || "....." }
+    ])
     setInput('')
   }, [action, userData]);
 
