@@ -116,13 +116,13 @@ const CrystallViewer = forwardRef<{
     };
 
     const talkingView = () => {
-        setCurrentSpeed(1);
+        setCurrentSpeed(2);
         // Smooth transition to talking view
         // setCameraProps({ position: [0, 0, 2.5] });
 
         setTimeout(() => {
             setCurrentSpeed(0.2);
-        }, 2500);
+        }, 3500);
     };
 
     // Export functions if needed

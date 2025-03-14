@@ -28,6 +28,10 @@ export function CrystallBall({
   const group = useRef<Group>(null!)
   const { nodes, materials, animations } = useGLTF('/piscean_pearl.glb')
   const { actions } = useAnimations(animations, group)
+  const targetSpeedRef = useRef(speed)
+  const currentSpeedRef = useRef(speed)
+  const velocityRef = useRef(0)
+  const animationFrameRef = useRef<number | null>(null)
   
   // Control animation based on props
   useEffect(() => {
@@ -45,69 +49,124 @@ export function CrystallBall({
     if (playing && currentAnimation) {
       // Configure and play animation
       currentAnimation.reset().fadeIn(0.5).play()
-      currentAnimation.setEffectiveTimeScale(speed)
       currentAnimation.setLoop(THREE.LoopRepeat, Infinity)
+      
+      // Initialize with current speed
+      currentAnimation.setEffectiveTimeScale(currentSpeedRef.current)
+      
+      // Update target speed
+      targetSpeedRef.current = speed
+      
+      // Start the smooth speed transition if not already running
+      if (!animationFrameRef.current) {
+        let lastTime = performance.now()
+        
+        const updateSpeed = () => {
+          const currentTime = performance.now()
+          const deltaTime = Math.min((currentTime - lastTime) / 1000, 0.1) // Convert to seconds, cap at 0.1s
+          lastTime = currentTime
+          
+          // Get current values
+          const currentSpeed = currentSpeedRef.current
+          const targetSpeed = targetSpeedRef.current
+          
+          // Apply ultra-smooth spring physics
+          const newSpeed = ultraSmoothSpring(
+            currentSpeed, 
+            targetSpeed, 
+            velocityRef, 
+            deltaTime, 
+            4.0,  // Smooth time: higher = smoother transitions (3.0-5.0 is very smooth)
+            0.7   // Damping ratio: 0.7 is critically damped (no oscillation)
+          )
+          
+          // Update current speed ref
+          currentSpeedRef.current = newSpeed
+          
+          // Apply to animation
+          currentAnimation.setEffectiveTimeScale(newSpeed)
+          
+          // Continue the animation loop
+          animationFrameRef.current = requestAnimationFrame(updateSpeed)
+        }
+        
+        // Start the animation loop
+        animationFrameRef.current = requestAnimationFrame(updateSpeed)
+      }
     } else if (currentAnimation) {
       // Pause or stop animation
       currentAnimation.fadeOut(0.5)
     }
     
     return () => {
-      // Cleanup
+      // Cleanup animation frame
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current)
+        animationFrameRef.current = null
+      }
+      
+      // Cleanup animations
       Object.values(actions).forEach(action => action?.stop())
     }
-  }, [actions, animationName, playing, speed])
+  }, [actions, animationName, playing])
+  
+  // Update target speed when speed prop changes
+  useEffect(() => {
+    targetSpeedRef.current = speed
+  }, [speed])
   
   return (
     <group ref={group} {...props} dispose={null}>
       <group name="Sketchfab_Scene">
         <group name="Sketchfab_model" rotation={[-Math.PI / 2, 0, 0]}>
-          <group name="root">
-            <group name="GLTF_SceneRootNode" rotation={[Math.PI / 2, 0, 0]}>
-              <group name="Sphere_0">
-                <mesh
-                  name="Object_4"
-                  castShadow
-                  receiveShadow
-                  geometry={(nodes.Object_4 as any).geometry}
-                  material={materials.material}
-                />
-              </group>
-              <group name="Sphere004_1" scale={0.9}>
-                <mesh
-                  name="Object_6"
-                  castShadow
-                  receiveShadow
-                  geometry={(nodes.Object_6 as any).geometry}
-                  material={materials.material}
-                />
-              </group>
-              <group name="Sphere005_2" scale={1.08}>
-                <mesh
-                  name="Object_8"
-                  castShadow
-                  receiveShadow
-                  geometry={(nodes.Object_8 as any).geometry}
-                  material={materials.material}
-                />
-              </group>
-              <group name="Sphere002_3" scale={6.5}>
-                <mesh
-                  name="Object_10"
-                  castShadow
-                  receiveShadow
-                  geometry={(nodes.Object_10 as any).geometry}
-                  material={materials.material}
-                />
-              </group>
-              <group name="Sphere001_4" scale={0.292}>
-                <mesh
-                  name="Object_12"
-                  castShadow
-                  receiveShadow
-                  geometry={(nodes.Object_12 as any).geometry}
-                  material={materials.material_1}
-                />
+          <group name="Sketchfab_model" rotation={[Math.PI / 2, 0, 0]}>
+            <group name="root">
+              <group name="GLTF_SceneRootNode" rotation={[Math.PI / 2, 0, 0]}>
+                <group name="Sphere_0">
+                  <mesh
+                    name="Object_4"
+                    castShadow
+                    receiveShadow
+                    geometry={(nodes.Object_4 as any).geometry}
+                    material={materials.material}
+                  />
+                </group>
+                <group name="Sphere004_1" scale={0.9}>
+                  <mesh
+                    name="Object_6"
+                    castShadow
+                    receiveShadow
+                    geometry={(nodes.Object_6 as any).geometry}
+                    material={materials.material}
+                  />
+                </group>
+                <group name="Sphere005_2" scale={1.08}>
+                  <mesh
+                    name="Object_8"
+                    castShadow
+                    receiveShadow
+                    geometry={(nodes.Object_8 as any).geometry}
+                    material={materials.material}
+                  />
+                </group>
+                <group name="Sphere002_3" scale={6.5}>
+                  <mesh
+                    name="Object_10"
+                    castShadow
+                    receiveShadow
+                    geometry={(nodes.Object_10 as any).geometry}
+                    material={materials.material}
+                  />
+                </group>
+                <group name="Sphere001_4" scale={0.292}>
+                  <mesh
+                    name="Object_12"
+                    castShadow
+                    receiveShadow
+                    geometry={(nodes.Object_12 as any).geometry}
+                    material={materials.material_1}
+                  />
+                </group>
               </group>
             </group>
           </group>
@@ -115,6 +174,71 @@ export function CrystallBall({
       </group>
     </group>
   )
+}
+
+// Ultra-smooth spring physics for the smoothest possible transitions
+function ultraSmoothSpring(
+  current: number,
+  target: number,
+  velocityRef: React.MutableRefObject<number>,
+  deltaTime: number,
+  smoothTime: number,
+  dampingRatio: number = 0.7
+): number {
+  // Ensure minimum smooth time to prevent instability
+  smoothTime = Math.max(0.0001, smoothTime)
+  
+  // Calculate spring constants based on desired smoothTime and dampingRatio
+  const omega = 2.0 / smoothTime
+  
+  // Apply adaptive time stepping for stability at any frame rate
+  const adaptiveDt = Math.min(deltaTime, 1 / 30); // Cap at 30fps equivalent for stability
+  
+  // Calculate spring force
+  const springForce = (target - current) * (omega * omega);
+  
+  // Calculate damping force
+  const dampingForce = velocityRef.current * (2.0 * dampingRatio * omega);
+  
+  // Calculate acceleration
+  const acceleration = springForce - dampingForce;
+  
+  // Update velocity using semi-implicit Euler integration (more stable)
+  velocityRef.current += acceleration * adaptiveDt;
+  
+  // Apply velocity limiter for extra smoothness when close to target
+  const distanceToTarget = Math.abs(target - current);
+  if (distanceToTarget < 0.01) {
+    // Apply stronger damping when very close to target
+    velocityRef.current *= Math.pow(0.9, 60 * adaptiveDt);
+    
+    // If extremely close and moving very slowly, just snap to target
+    if (distanceToTarget < 0.001 && Math.abs(velocityRef.current) < 0.001) {
+      velocityRef.current = 0;
+      return target;
+    }
+  }
+  
+  // Apply additional non-linear damping for smoother deceleration
+  const velocityMagnitude = Math.abs(velocityRef.current);
+  if (velocityMagnitude > 0) {
+    // Higher velocities get more damping
+    const nonLinearDamping = Math.min(1.0, Math.pow(velocityMagnitude, 0.5) * 0.2);
+    velocityRef.current *= (1.0 - nonLinearDamping * adaptiveDt);
+  }
+  
+  // Update position using velocity
+  const newPosition = current + velocityRef.current * adaptiveDt;
+  
+  // Detect if we're about to overshoot and apply correction
+  const currentToTarget = target - current;
+  const newToTarget = target - newPosition;
+  if (currentToTarget * newToTarget < 0) {
+    // We're crossing the target, apply extra damping
+    velocityRef.current *= 0.8;
+  }
+  
+  return newPosition;
 }
 
 useGLTF.preload('/piscean_pearl.glb')
