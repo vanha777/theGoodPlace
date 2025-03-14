@@ -16,7 +16,7 @@ type Message = {
   content: string
 }
 interface ChatSimulatorV2Props {
-  action: string;
+  action: string | null;
   createUpdateView: () => void;
   resetView: () => void;
   talkingView: () => void;
@@ -40,12 +40,24 @@ export default function ChatSimulatorV2({
 
   useEffect(() => {
     console.log("chatAction changing", action);
+    if (action === null) {
+      return;
+    }
     let message;
     if (action === "create") {
-      message = "Let's create your digital twin."
-    } 
+      if (userData.personality) {
+        message = "Let's update your digital twin."
+      } else {
+        message = "Let's create your digital twin."
+      }
+    }
     else {
-      message = "Let's interact with your digital twin."
+      if (userData.personality) {
+        message = "Let's interact with your digital twin."
+      } else {
+        console.log("userData.personality hereeeee ", userData)
+        message = "Please create a digital twin first."
+      }
     }
     const playAudio = async () => {
       const audioUrl = await textToSpeech(message);

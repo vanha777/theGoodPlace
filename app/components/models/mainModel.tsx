@@ -50,7 +50,7 @@ const CrystallViewer = forwardRef<{
 }: CrystallViewerProps, ref) => {
     const { publicKey, connected, connect, disconnect, signMessage, wallet } = useWallet();
     const { connection } = useConnection();
-    const [action, setAction] = useState("talk");
+    const [action, setAction] = useState<string | null>(null);
     // Add state to manage camera position and speed
     const [currentSpeed, setCurrentSpeed] = useState(speed);
 
