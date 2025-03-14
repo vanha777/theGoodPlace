@@ -60,7 +60,15 @@ const CrystallViewer = forwardRef<{
     const [cameraProps, setCameraProps] = useSpring(() => ({
         position: cameraPosition,
         fov: cameraFov,
-        config: { mass: 1, tension: 120, friction: 14 }, // Adjust for desired feel
+        config: { 
+            mass: 4,             // Significantly increased mass for slower movement
+            tension: 40,         // Much lower tension for extended transition time
+            friction: 35,        // Higher friction for controlled movement
+            precision: 0.0001,   // Even higher precision for smoother finish
+            clamp: false,        // Allow slight overshooting for natural feel
+            velocity: 0,         // Start with zero velocity
+            duration: 25000       // Set a minimum duration in milliseconds
+        },
     }));
 
     useEffect(() => {
@@ -94,7 +102,7 @@ const CrystallViewer = forwardRef<{
         setTimeout(() => {
             setCameraProps({ position: [0, 0, 0.8] });
             setCurrentSpeed(0.2);
-        }, 1000);
+        }, 2500);
     };
 
     const resetView = () => {
@@ -104,7 +112,7 @@ const CrystallViewer = forwardRef<{
 
         setTimeout(() => {
             setCurrentSpeed(0.2);
-        }, 1000);
+        }, 2500);
     };
 
     const talkingView = () => {
@@ -114,7 +122,7 @@ const CrystallViewer = forwardRef<{
 
         setTimeout(() => {
             setCurrentSpeed(0.2);
-        }, 1000);
+        }, 2500);
     };
 
     // Export functions if needed
