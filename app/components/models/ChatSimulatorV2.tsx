@@ -40,23 +40,22 @@ export default function ChatSimulatorV2({
 
   useEffect(() => {
     console.log("chatAction changing", action);
-    if (action === null) {
+    if (action === null || wallet === null) {
       return;
     }
     let message;
     if (action === "create") {
       if (userData.personality) {
-        message = "Let's update your digital twin."
+        message = "A digital persona has been retrieved from the Sonic Blockchain and is ready. Let's start updating it by typing your message."
       } else {
-        message = "Let's create your digital twin."
+        message = "Let's create a digital persona and store it for eternity on the Sonic Blockchain."
       }
     }
     else {
       if (userData.personality) {
-        message = "Let's interact with your digital twin."
+        message = "A digital persona has been retrieved from the Sonic Blockchain and is ready. Let's start interacting by typing your message."
       } else {
-        console.log("userData.personality hereeeee ", userData)
-        message = "Please create a digital twin first."
+        message = "Please create a digital persona first by selecting the Initialize tab above."
       }
     }
     const playAudio = async () => {
@@ -69,7 +68,7 @@ export default function ChatSimulatorV2({
     playAudio();
     setMessages([{ role: 'assistant', content: message || "....." }])
     setInput('')
-  }, [action]);
+  }, [action, userData]);
 
   // Add debugging to check component lifecycle
   useEffect(() => {

@@ -7,6 +7,7 @@ import { CrystallBall } from "./crystallBall";
 import ChatSimulatorV2 from "./ChatSimulatorV2";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import { WalletMultiButtonDynamic } from "../NavBar";
+import { useAppContext } from "@/app/utils/AppContext";
 
 interface CrystallViewerProps {
     animationName?: string;
@@ -48,6 +49,7 @@ const CrystallViewer = forwardRef<{
     minDistance = 2,
     maxDistance = 10
 }: CrystallViewerProps, ref) => {
+    const { userData } = useAppContext();
     const { publicKey, connected, connect, disconnect, signMessage, wallet } = useWallet();
     const { connection } = useConnection();
     const [action, setAction] = useState<string | null>(null);
@@ -60,6 +62,20 @@ const CrystallViewer = forwardRef<{
         fov: cameraFov,
         config: { mass: 1, tension: 120, friction: 14 }, // Adjust for desired feel
     }));
+
+    useEffect(() => {
+        console.log("userData.derivedPda", userData.derivedPda);
+        if (userData.derivedPda !== null) {
+            // Wait 3 seconds then set action to "talk"
+            const timer = setTimeout(() => {
+                setAction("talk");
+                console.log("Setting action to talk after 3 second delay");
+            }, 2000);
+
+            // Clean up the timer when component unmounts or dependencies change
+            return () => clearTimeout(timer);
+        }
+    }, [userData.derivedPda]);
 
     useEffect(() => {
         if (action === "talk") {

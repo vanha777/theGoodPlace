@@ -6,6 +6,7 @@ import { Keypair, PublicKey } from '@solana/web3.js';
 import { createHash } from 'crypto';
 export interface UserData {
     personality: PersonalityTemplate | null;
+    derivedPda: string | null;
 }
 
 export interface AppContextData {
@@ -41,20 +42,21 @@ export function AppProvider({ children }: AppProviderProps) {
                     console.log("personality exists, this is derivedPda", pdaExists)
                     const personality = await fetchPersonality(pdaExists.uri);
                     console.log("personality", personality)
-                    setUserData({ personality: personality })
+                    setUserData({ personality: personality, derivedPda: pdaExists.address })
                 } else {
                     console.log("personality does not exist")
-                    setUserData({ personality: null })
+                    setUserData({ personality: null, derivedPda: null })
                 }
             }
             derivePda()
         } else {
             console.log('Wallet disconnected')
-            setUserData({ personality: null })
+            setUserData({ personality: null, derivedPda: null })
         }
     }, [connected, publicKey])
     const [userData, setUserData] = useState<UserData>({
         personality: null,
+        derivedPda: null,
     });
 
     const value: AppContextData = {
