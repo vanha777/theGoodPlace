@@ -40,7 +40,7 @@ export default function ChatSimulatorV2({
 
   useEffect(() => {
     console.log("chatAction changing", action);
-    setMessages([])
+    setMessages([{ role: 'assistant', content: "Please start by typing" }])
     setInput('')
   }, [action]);
 
