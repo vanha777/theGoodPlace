@@ -149,7 +149,7 @@ export const VerfifyUser = async (username: string) => {
 // Define TypeScript interfaces for the personality structure
 
 // Fetch personality from URL with fallback to default
-export async function fetchPersonality(url: string): Promise<PersonalityTemplate> {
+export async function fetchPersonality(url: string): Promise<PersonalityTemplate | null> {
   try {
     // URL to fetch personality data from
     const personalityUrl = url || 'https://your-default-url.com/personality.json';
@@ -157,7 +157,7 @@ export async function fetchPersonality(url: string): Promise<PersonalityTemplate
     const response = await fetch(personalityUrl);
     if (!response.ok) {
       console.warn(`Failed to fetch personality data: ${response.status} ${response.statusText}`);
-      return defaultPersonality;
+      return null;
     }
 
     const personalityData = await response.json();
@@ -165,195 +165,9 @@ export async function fetchPersonality(url: string): Promise<PersonalityTemplate
     return personalityData as PersonalityTemplate;
   } catch (error) {
     console.error('Error fetching personality data:', error);
-    return defaultPersonality;
+    return null;
   }
 }
-
-// Default personality to use if fetching fails
-const defaultPersonality: PersonalityTemplate = {
-  "personalInfo": {
-    "name": {
-      "firstName": "H",
-      "lastName": "T",
-      "preferredName": "H"
-    },
-    "dateOfBirth": "1990-05-15",
-    "dateOfPassing": "2023-08-12",
-    "gender": "Male",
-    "contact": {
-      "email": "john.doe@email.com",
-      "phone": "+1-555-123-4567"
-    },
-    "residence": {
-      "street": "222/6 Bui Dinh Tuy Street",
-      "city": "Ho Chi Minh",
-      "state": "Binh Thanh",
-      "country": "Vietnam",
-      "postalCode": "700000"
-    }
-  },
-  "traits": {
-    "personality": {
-      "mbti": "ENTJ",
-      //       INFJ: The Advocate
-      // INFP: The Mediator
-      // INTJ: The Architect
-      // INTP: The Thinker
-      // ISFJ: The Defender
-      // ISFP: The Artist
-      // ISTJ: The Logistician
-      // ISTP: The Virtuoso
-      // ENFJ: The Protagonist
-      // ENFP: The Campaigner
-      // ENTJ: The Commander
-      // ENTP: The Debater
-      // ESFJ: The Consul
-      // ESFP: The Entertainer
-      // ESTJ: The Executive
-      // ESTP: The Entrepreneur
-      "strengths": [
-        "Sacartistic",
-        "Determined",
-        "Unpredictable",
-        "Unorganized",
-        "Hot-headed",
-        "Aggressive",
-        "Self-centered",
-        "Self-absorbed",
-        "Self-important"
-      ],
-      "challenges": [
-        "Overthinking",
-        "Overly emotional",
-        "Overly sensitive",
-        "Overly dramatic"
-      ]
-    },
-    "interests": [
-      "Photography",
-      "Souverneignity",
-      "Singing",
-      "Online Chatting",
-      "Shoppe",
-      "Online Shopping"
-    ],
-    "values": [
-      "Respect",
-      "Food",
-      "Entertainment",
-    ],
-    "mannerisms": [
-      "Often used the phrase 'ủa vậy à...'",
-      "Laughed sarcastically before saying :'biết ngay mà'",
-    ]
-  },
-  "favorites": {
-    "colors": [
-      "Blue",
-      "Forest green"
-    ],
-    "foods": [
-      "Vietnamese cuisine",
-      "Japanese cuisine",
-    ],
-    "movies": [
-      "The Shawshank Redemption",
-      "Inception",
-      "The Grand Budapest Hotel"
-    ],
-    "books": [
-      "1984",
-      "The Alchemist",
-      "Dune"
-    ],
-    "music": {
-      "genres": [
-        "Jazz",
-        "Classical",
-        "Alternative rock"
-      ],
-      "artists": [
-        "Miles Davis",
-        "Beethoven",
-        "Radiohead"
-      ]
-    }
-  },
-  // "education": {
-  //   "degree": "Master's in Computer Science",
-  //   "university": "Stanford University",
-  //   "graduationYear": 2015
-  // },
-  // "career": {
-  //   "currentPosition": "Senior Software Engineer",
-  //   "company": "Tech Innovations Inc.",
-  //   "yearsOfExperience": 8,
-  //   "skills": [
-  //     "JavaScript",
-  //     "Python",
-  //     "Cloud Architecture",
-  //     "System Design"
-  //   ]
-  // },
-  "languages": {
-    "language": [
-      {
-        "name": "Vietnamese",
-        "proficiency": "Native"
-      }
-    ]
-  },
-  "memories": {
-    "significantEvents": [
-      "Our wedding day in Napa Valley, 2015",
-      "The birth of our daughter Yen in 2018",
-      "That summer road trip along the Pacific Coast Highway",
-      "When we got caught in the rainstorm at the music festival"
-    ],
-    "sharedExperiences": [
-      "Our Sunday morning coffee ritual on the porch",
-      "Weekly game nights with the Johnsons",
-      "Our first apartment together with the broken heater",
-      "Teaching each other our favorite hobbies"
-    ],
-    "familyMembers": [
-      "Emma - our daughter",
-      "Mom (Sarah) and Dad (Robert)",
-      "Your parents, who I grew to love like my own",
-      "My brother Michael and his family"
-    ],
-    "personalStories": [
-      "The time I got lost hiking and ended up discovering that beautiful waterfall",
-      "How I learned to cook from my grandmother",
-      "My first job interview disaster that actually led to my career",
-      "The childhood dog that inspired my love of animals"
-    ]
-  },
-  "relationships": {
-    "family": [
-      {
-        "name": "Bơ",
-        "relation": "Son",
-        "details": "Born October 10, 1996. He is a very dedicate and hard working. He's the only one who i can rely on doing anything. I'm always being tough."
-      },
-      {
-        "name": "Sarah",
-        "relation": "Mother",
-        "details": "Always supportive of my creative pursuits. Taught me to bake those cookies you love."
-      }
-    ],
-    "friends": [
-      {
-        "name": "David",
-        "details": "My college roommate. We stayed close all these years. He was the best man at our wedding."
-      },
-      {
-        "name": "Jennifer",
-        "details": "We worked together at Tech Innovations. She introduced us at that company party, remember?"
-      }
-    ]
-  }
-};
 
 export default async function processCommand(transcript: string,personality: PersonalityTemplate): Promise<string> {
   console.log("processing command");
@@ -901,7 +715,7 @@ export async function uploadPersonalityToSupabase(
 export async function checkIfPdaExists(
   connection: Connection,
   entrySeed: PublicKey
-): Promise<boolean> {
+): Promise<string | null> {
   const programId = new PublicKey(process.env.NEXT_PUBLIC_THE_GOOD_PLACE_PROGRAM_ID || "");
   try {
     // Derive the PDA address using the same seeds as your program
@@ -917,10 +731,10 @@ export async function checkIfPdaExists(
     const accountInfo = await connection.getAccountInfo(pdaAddress);
 
     // If accountInfo is not null, the account exists
-    return accountInfo !== null;
+    return accountInfo ? pdaAddress.toString() : null;
   } catch (error) {
     console.error("Error checking PDA existence:", error);
-    return false;
+    return null;
   }
 }
 
@@ -1002,6 +816,127 @@ export async function parsePdaAccountData(
   } catch (error) {
     console.error("Error parsing PDA account data:", error);
     return null;
+  }
+}
+
+/**
+ * Converts text to speech using a text-to-speech API
+ * @param text The text to convert to speech
+ * @param voice Optional voice ID or name to use (defaults to a standard voice)
+ * @returns Promise with the audio URL or null if conversion failed
+ */
+export async function textToSpeech(
+  text: string,
+  voice?: string
+): Promise<{ success: boolean; audioUrl?: string; error?: string }> {
+  try {
+    if (!text.trim()) {
+      return {
+        success: false,
+        error: "Text cannot be empty"
+      };
+    }
+
+    // Use OpenAI's TTS API
+    const openai = new OpenAI({
+      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+      dangerouslyAllowBrowser: true,
+    });
+
+    // Default voice if not specified
+    const voiceId = voice || "alloy"; // OpenAI voices: alloy, echo, fable, onyx, nova, shimmer
+
+    // Call the OpenAI TTS API
+    const response = await openai.audio.speech.create({
+      model: "tts-1",
+      voice: voiceId as "alloy" | "ash" | "coral" | "echo" | "fable" | "onyx" | "nova" | "sage" | "shimmer",
+      input: text,
+    });
+
+    // Convert the response to a blob
+    const blob = await response.blob();
+    
+    // Create a URL for the audio blob
+    const audioUrl = URL.createObjectURL(blob);
+
+    return {
+      success: true,
+      audioUrl
+    };
+  } catch (error) {
+    console.error('Error in text-to-speech conversion:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
+// Alternative implementation using ElevenLabs if you prefer
+export async function textToSpeechElevenLabs(
+  text: string,
+  voiceId?: string
+): Promise<{ success: boolean; audioUrl?: string; error?: string }> {
+  try {
+    if (!text.trim()) {
+      return {
+        success: false,
+        error: "Text cannot be empty"
+      };
+    }
+
+    const apiKey = process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY;
+    if (!apiKey) {
+      return {
+        success: false,
+        error: "ElevenLabs API key is missing"
+      };
+    }
+
+    // Default voice if not specified (using ElevenLabs default voice ID)
+    const voice = voiceId || "21m00Tcm4TlvDq8ikWAM"; // Default ElevenLabs voice
+
+    // Call the ElevenLabs API
+    const response = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voice}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "xi-api-key": apiKey,
+        },
+        body: JSON.stringify({
+          text,
+          model_id: "eleven_monolingual_v1",
+          voice_settings: {
+            stability: 0.5,
+            similarity_boost: 0.5,
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to convert text to speech");
+    }
+
+    // Get the audio data
+    const audioBlob = await response.blob();
+    
+    // Create a URL for the audio blob
+    const audioUrl = URL.createObjectURL(audioBlob);
+
+    return {
+      success: true,
+      audioUrl
+    };
+  } catch (error) {
+    console.error('Error in ElevenLabs text-to-speech conversion:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error)
+    };
   }
 }
 

@@ -1,11 +1,12 @@
 'use client';
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { checkIfPdaExists, fetchPersonality, PersonalityTemplate } from "@/app/utils/db";
+import { checkIfPdaExists, fetchPersonality, parsePdaAccountData, PersonalityTemplate } from "@/app/utils/db";
 import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react"
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { createHash } from 'crypto';
 export interface UserData {
     personality: PersonalityTemplate | null;
+    derivedPda: string | null;
 }
 
 export interface AppContextData {
@@ -35,24 +36,27 @@ export function AppProvider({ children }: AppProviderProps) {
                     createHash("sha256").update(password).digest()
                 ); // 32 bytes guaranteed
                 const entrySeed = Keypair.fromSeed(seed);
-                const pdaExists = await checkIfPdaExists(connection, entrySeed.publicKey);
+                // const pdaExists = await checkIfPdaExists(connection, entrySeed.publicKey);
+                const pdaExists = await parsePdaAccountData(connection, entrySeed.publicKey);
                 if (pdaExists) {
-                    console.log("personality exists")
-                    const personality = await fetchPersonality(entrySeed.publicKey.toBase58());
-                    setUserData({ personality: personality })
+                    console.log("personality exists, this is derivedPda", pdaExists)
+                    const personality = await fetchPersonality(pdaExists.uri);
+                    console.log("personality", personality)
+                    setUserData({ personality: personality, derivedPda: pdaExists.address })
                 } else {
                     console.log("personality does not exist")
-                    setUserData({ personality: null })
+                    setUserData({ personality: null, derivedPda: null })
                 }
             }
             derivePda()
         } else {
             console.log('Wallet disconnected')
-            setUserData({ personality: null })
+            setUserData({ personality: null, derivedPda: null })
         }
     }, [connected, publicKey])
     const [userData, setUserData] = useState<UserData>({
         personality: null,
+        derivedPda: null,
     });
 
     const value: AppContextData = {
