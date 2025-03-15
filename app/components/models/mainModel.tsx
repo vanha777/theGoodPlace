@@ -125,6 +125,16 @@ const CrystallViewer = forwardRef<{
         }, 3500);
     };
 
+    // Function to open explorer in new tab
+    const openExplorer = () => {
+        if (userData.derivedPda) {
+            window.open(`https://explorer.sonic.game/address/${userData.derivedPda}?cluster=testnet.v1`, '_blank');
+        } else {
+            console.error("No derivedPda available");
+            // Optionally show a notification to the user
+        }
+    };
+
     // Export functions if needed
     useImperativeHandle(ref, () => ({
         createUpdateView,
@@ -147,7 +157,21 @@ const CrystallViewer = forwardRef<{
                             onClick={() => setAction("create")}
                             className={`px-4 py-2 rounded-lg transition-all ${action === "create" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
                         >
-                            Create
+                            Initialize
+                        </button>
+                        <button
+                            onClick={openExplorer}
+                            className={`px-4 py-2 rounded-lg transition-all bg-gray-800 text-gray-300 hover:bg-gray-700 ${!userData.derivedPda ? 'opacity-50 cursor-not-allowed' : ''} flex items-center gap-2`}
+                            disabled={!userData.derivedPda}
+                            title={userData.derivedPda ? "View your blockchain storage" : "Connect wallet to view storage"}
+                        >
+                            {/* Sonic Logo */}
+                            <img 
+                                src="/sonic.jpg" 
+                                alt="Sonic" 
+                                className="h-5 w-5 rounded-full object-cover"
+                            />
+                            Explorer
                         </button>
                     </div>
                 </>
