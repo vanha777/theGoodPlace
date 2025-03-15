@@ -8,6 +8,8 @@ import ChatSimulatorV2 from "./ChatSimulatorV2";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react"
 import { WalletMultiButtonDynamic } from "../NavBar";
 import { useAppContext } from "@/app/utils/AppContext";
+import { motion } from "framer-motion";
+import { FiArrowRight } from "react-icons/fi";
 
 interface CrystallViewerProps {
     animationName?: string;
@@ -55,6 +57,7 @@ const CrystallViewer = forwardRef<{
     const [action, setAction] = useState<string | null>(null);
     // Add state to manage camera position and speed
     const [currentSpeed, setCurrentSpeed] = useState(speed);
+    const [showOverlay, setShowOverlay] = useState(true);
 
     // Use spring for smooth camera animation
     const [cameraProps, setCameraProps] = useSpring(() => ({
@@ -135,6 +138,11 @@ const CrystallViewer = forwardRef<{
         }
     };
 
+    // Add this function to handle continue button click
+    const handleContinue = () => {
+        setShowOverlay(false);
+    };
+
     // Export functions if needed
     useImperativeHandle(ref, () => ({
         createUpdateView,
@@ -145,36 +153,35 @@ const CrystallViewer = forwardRef<{
     return (
         <>
             <div className="w-full relative h-full bg-black pt-40 pb-40">
-                <>
-                    <div className="flex justify-center gap-4 mb-6">
-                        <button
-                            onClick={() => setAction("talk")}
-                            className={`px-4 py-2 rounded-lg transition-all ${action === "talk" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
-                        >
-                            Communicate
-                        </button>
-                        <button
-                            onClick={() => setAction("create")}
-                            className={`px-4 py-2 rounded-lg transition-all ${action === "create" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
-                        >
-                            Initialize
-                        </button>
-                        <button
-                            onClick={openExplorer}
-                            className={`px-4 py-2 rounded-lg transition-all bg-gray-800 text-gray-300 hover:bg-gray-700 ${!userData.derivedPda ? 'opacity-50 cursor-not-allowed' : ''} flex items-center gap-2`}
-                            disabled={!userData.derivedPda}
-                            title={userData.derivedPda ? "View your blockchain storage" : "Connect wallet to view storage"}
-                        >
-                            {/* Sonic Logo */}
-                            <img 
-                                src="/sonic.jpg" 
-                                alt="Sonic" 
-                                className="h-5 w-5 rounded-full object-cover"
-                            />
-                            Explorer
-                        </button>
-                    </div>
-                </>
+                {/* Main content always rendered */}
+                <div className="flex justify-center gap-4 mb-6">
+                    <button
+                        onClick={() => setAction("talk")}
+                        className={`px-4 py-2 rounded-lg transition-all ${action === "talk" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
+                    >
+                        Communicate
+                    </button>
+                    <button
+                        onClick={() => setAction("create")}
+                        className={`px-4 py-2 rounded-lg transition-all ${action === "create" ? "bg-blue-600 text-white" : "bg-gray-800 text-gray-300 hover:bg-gray-700"}`}
+                    >
+                        Initialize
+                    </button>
+                    <button
+                        onClick={openExplorer}
+                        className={`px-4 py-2 rounded-lg transition-all bg-gray-800 text-gray-300 hover:bg-gray-700 ${!userData.derivedPda ? 'opacity-50 cursor-not-allowed' : ''} flex items-center gap-2`}
+                        disabled={!userData.derivedPda}
+                        title={userData.derivedPda ? "View your blockchain storage" : "Connect wallet to view storage"}
+                    >
+                        {/* Sonic Logo */}
+                        <img 
+                            src="/sonic.jpg" 
+                            alt="Sonic" 
+                            className="h-5 w-5 rounded-full object-cover"
+                        />
+                        Explorer
+                    </button>
+                </div>
                 <div className="w-full h-[800px]">
                     <Canvas className="bg-black" gl={{ alpha: false }}>
                         {/* Animated camera */}
@@ -227,6 +234,79 @@ const CrystallViewer = forwardRef<{
                         </div>
                     )}
                 </div>
+                
+                {/* Overlay that appears on top when showOverlay is true */}
+                {showOverlay && (
+                    <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 z-50 flex items-center justify-center bg-black/90"
+                    >
+                        <motion.div 
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ duration: 0.6 }}
+                            className="relative bg-black/80 border border-[#00d9ff]/30 rounded-xl p-8 shadow-lg overflow-hidden max-w-md"
+                        >
+                            {/* Simple scanning line */}
+                            <motion.div
+                                className="absolute left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-[#00d9ff] to-transparent"
+                                animate={{ 
+                                    top: ["0%", "100%"],
+                                    opacity: [0, 1, 0]
+                                }}
+                                transition={{ 
+                                    repeat: Infinity, 
+                                    duration: 3,
+                                    ease: "linear" 
+                                }}
+                            />
+                            
+                            {/* Logo/icon */}
+                            <div className="flex justify-center mb-6">
+                                <div className="w-16 h-16 rounded-full bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] p-[2px]">
+                                    <div className="w-full h-full rounded-full bg-black flex items-center justify-center">
+                                        <img 
+                                            src="/sonic.jpg" 
+                                            alt="Sonic" 
+                                            className="h-10 w-10 rounded-full object-cover"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <motion.h2 
+                                className="text-2xl font-semibold text-white text-center mb-4"
+                            >
+                                Welcome to Sonic Good Place
+                            </motion.h2>
+                            
+                            <motion.p 
+                                className="text-gray-300 mb-6 text-center"
+                            >
+                                You will interact with our Good Place Agent, who will assist you to create, 
+                                update and store your persona forever on chain, and interact with our MVP clone interfaces.
+                            </motion.p>
+                            
+                            {/* Simple button */}
+                            <motion.button
+                                whileHover={{ scale: 1.03 }}
+                                whileTap={{ scale: 0.98 }}
+                                onClick={handleContinue}
+                                className="w-full py-3 px-6 bg-gradient-to-r from-[#00ffe1] via-[#00d9ff] to-[#00a3ff] text-black font-medium rounded-lg transition-all flex items-center justify-center gap-2"
+                            >
+                                <span>Continue</span>
+                                <FiArrowRight />
+                            </motion.button>
+                            
+                            {/* Simple status text */}
+                            <p className="text-gray-500 text-xs text-center mt-6">
+                                Powered by Sonic blockchain technology
+                            </p>
+                        </motion.div>
+                    </motion.div>
+                )}
             </div>
         </>
     );
