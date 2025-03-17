@@ -389,7 +389,7 @@ export async function processCreate(personalityTemplate: PersonalityTemplate, us
           messages: [
             {
               role: "system",
-              content: `You're helping create a personality profile. Keep your response short and conversational. Thank the user briefly for the personal info, then ask about traits (personality type, strengths, challenges, interests, values, mannerisms). Max 2 sentences.`
+              content: `You're helping user to create a personality profile of their passed away loved one. Keep your response short and conversational. Thank the user briefly for the personal info, then ask about traits (personality type, strengths, challenges, interests, values, mannerisms). Max 2 sentences.`
             },
             {
               role: "user",
