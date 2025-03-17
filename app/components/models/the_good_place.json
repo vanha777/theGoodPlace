@@ -55,6 +55,31 @@
           }
         },
         {
+          "name": "emotions",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  109,
+                  111,
+                  116,
+                  105,
+                  111,
+                  110,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "entry_seed"
+              }
+            ]
+          }
+        },
+        {
           "name": "entry_seed"
         },
         {
@@ -74,6 +99,72 @@
         {
           "name": "authority",
           "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "update_emotions",
+      "discriminator": [
+        226,
+        183,
+        230,
+        242,
+        141,
+        72,
+        5,
+        230
+      ],
+      "accounts": [
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "emotions",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  101,
+                  109,
+                  111,
+                  116,
+                  105,
+                  111,
+                  110,
+                  115
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "entry_seed"
+              }
+            ]
+          }
+        },
+        {
+          "name": "entry_seed"
+        }
+      ],
+      "args": [
+        {
+          "name": "who",
+          "type": "string"
+        },
+        {
+          "name": "what",
+          "type": "string"
+        },
+        {
+          "name": "when",
+          "type": "string"
+        },
+        {
+          "name": "why",
+          "type": "string"
         }
       ]
     },
@@ -142,6 +233,19 @@
   ],
   "accounts": [
     {
+      "name": "Emotions",
+      "discriminator": [
+        231,
+        63,
+        220,
+        107,
+        85,
+        56,
+        138,
+        89
+      ]
+    },
+    {
       "name": "PersonalTraits",
       "discriminator": [
         167,
@@ -156,6 +260,38 @@
     }
   ],
   "types": [
+    {
+      "name": "Emotions",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "who",
+            "type": "string"
+          },
+          {
+            "name": "what",
+            "type": "string"
+          },
+          {
+            "name": "when",
+            "type": "string"
+          },
+          {
+            "name": "why",
+            "type": "string"
+          },
+          {
+            "name": "authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
     {
       "name": "PersonalTraits",
       "type": {

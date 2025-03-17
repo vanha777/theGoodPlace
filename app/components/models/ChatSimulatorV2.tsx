@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import processCommand, { checkIfPdaExists, PersonalityTemplate, processCreate, textToSpeech, uploadPersonalityToSupabase } from '@/app/utils/db'
+import processCommand, { analyzeEmotionsFromConversation, checkIfPdaExists, PersonalityTemplate, processCreate, textToSpeech, uploadPersonalityToSupabase } from '@/app/utils/db'
 import idl from "../models/the_good_place.json";
 import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react"
 import { PublicKey, Keypair, SystemProgram, Transaction, VersionedTransaction } from "@solana/web3.js";
@@ -11,7 +11,7 @@ import { sha256 } from 'js-sha256';
 import { createHash } from 'crypto';
 import UpdateOverlay from '../update';
 import { useAppContext } from '@/app/utils/AppContext';
-type Message = {
+export type Message = {
   role: 'user' | 'assistant'
   content: string
 }
@@ -46,9 +46,9 @@ export default function ChatSimulatorV2({
     let message;
     if (action === "create") {
       if (userData.personality) {
-        message = "A digital persona has been retrieved from the Sonic Blockchain and is ready. Let's start updating it by typing your message."
+        message = "A digital persona has been retrieved from the Sonic Blockchain and is ready. Let's start updating it by typing your personal information."
       } else {
-        message = "Let's create a digital persona and store it for eternity on the Sonic Blockchain."
+        message = "Let's create a digital persona and store it for eternity on the Sonic Blockchain. Please start with your personal information, as much detail as possible."
       }
     }
     else {
@@ -147,13 +147,13 @@ export default function ChatSimulatorV2({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (input.trim() === '') return
-    if (userData.personality === null) {
-      alert("Please create a person first")
-      return
-    }
     if (action === "create") {
       handleCreatePerson(e);
     } else {
+      if (userData.personality === null) {
+        alert("Please create a person first")
+        return
+      }
       // Add user message
       const userMessage: Message = { role: 'user', content: input }
       setMessages(prev => [...prev, userMessage])
@@ -357,6 +357,83 @@ export default function ChatSimulatorV2({
     }
   };
 
+
+  const updateEmotions = async () => {
+    if (publicKey) {
+      console.log("update person emotions 0");
+      const password = publicKey.toBase58();
+      const rawEmotion = messages;
+      const personEmotion = await analyzeEmotionsFromConversation(rawEmotion);
+      console.log("personEmotion", personEmotion);
+      // const programID = new PublicKey(idl.address);
+      const seed = Uint8Array.from(
+        createHash("sha256").update(password).digest()
+      ); // 32 bytes guaranteed
+      const entrySeed = Keypair.fromSeed(seed);
+      // Generate a random Keypair for entrySeed
+      // const entrySeed = Keypair.generate();
+
+      console.log("update person emotions 1");
+      if (!connected || !publicKey || !wallet) {
+        alert("Please connect your wallet first");
+        return;
+      }
+      console.log("update person emotions 2");
+
+      try {
+        console.log("update person emotions 3");
+
+        // Ensure publicKey is a PublicKey instance
+        const walletPublicKey = new PublicKey(publicKey); // Convert if necessary
+
+        // Create a wallet object compatible with AnchorProvider
+        const customWallet = {
+          publicKey: walletPublicKey,
+          signTransaction: async <T extends Transaction | VersionedTransaction>(tx: T): Promise<T> => {
+            if (!signTransaction) throw new Error("Wallet not connected");
+            return signTransaction(tx) as Promise<T>;
+          },
+          signAllTransactions: async <T extends Transaction | VersionedTransaction>(txs: T[]): Promise<T[]> => {
+            if (!signAllTransactions) throw new Error("Wallet not connected");
+            return signAllTransactions(txs) as Promise<T[]>;
+          },
+        };
+
+        const provider = new AnchorProvider(
+          connection,
+          customWallet,
+          { preflightCommitment: "processed" }
+        );
+        console.log("update person emotions 4");
+
+        const program = new Program(idl as any, provider); // Use 'any' temporarily if IDL type issues persist
+
+        // Pass authority as a PublicKey, not a string, if required by the program
+        const authority = walletPublicKey;
+
+        const tx = await program.methods
+          .updateEmotions(
+            personEmotion.who,
+            personEmotion.what,
+            personEmotion.when,
+            personEmotion.why
+          )
+          .accounts({
+            entrySeed: entrySeed.publicKey,
+          })
+          // .signers([entrySeed])
+          .rpc();
+
+        console.log("update person 5");
+        console.log("Transaction signature:", tx);
+        alert("Person updated successfully!");
+      } catch (error) {
+        console.error("Error updating person:", error);
+        alert(`Error: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
+  };
+
   // Helper function to create an empty personality template
   const createEmptyTemplate = (): PersonalityTemplate => {
     return {
@@ -523,9 +600,17 @@ export default function ChatSimulatorV2({
           <button
             type="submit"
             disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm rounded-r-lg focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50"
           >
             Send
+          </button>
+          <button
+            type="button"
+            onClick={updateEmotions}
+            disabled={isLoading}
+            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 text-sm rounded-r-lg focus:outline-none focus:ring-2 focus:ring-red-500 disabled:opacity-50 ml-1"
+          >
+            Bye
           </button>
         </div>
       </form>

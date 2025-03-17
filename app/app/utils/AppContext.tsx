@@ -1,6 +1,6 @@
 'use client';
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { checkIfPdaExists, fetchPersonality, parsePdaAccountData, PersonalityTemplate } from "@/app/utils/db";
+import { checkIfPdaExists, fetchPersonality, parseEmotionsPdaData, parsePdaAccountData, PersonalityTemplate } from "@/app/utils/db";
 import { useWallet, useConnection, Wallet } from "@solana/wallet-adapter-react"
 import { Keypair, PublicKey } from '@solana/web3.js';
 import { createHash } from 'crypto';
@@ -38,9 +38,15 @@ export function AppProvider({ children }: AppProviderProps) {
                 const entrySeed = Keypair.fromSeed(seed);
                 // const pdaExists = await checkIfPdaExists(connection, entrySeed.publicKey);
                 const pdaExists = await parsePdaAccountData(connection, entrySeed.publicKey);
+                const emotionsPdaExists = await parseEmotionsPdaData(connection, entrySeed.publicKey);
                 if (pdaExists) {
                     console.log("personality exists, this is derivedPda", pdaExists)
-                    const personality = await fetchPersonality(pdaExists.uri);
+                    console.log("emotionsPdaExists", emotionsPdaExists)
+                    const programId = new PublicKey(process.env.NEXT_PUBLIC_THE_GOOD_PLACE_PROGRAM_ID || "");
+                    let personality = await fetchPersonality(pdaExists.uri);
+                    if (emotionsPdaExists && personality) {
+                        personality.latestMemory = emotionsPdaExists;
+                    }
                     console.log("personality", personality)
                     setUserData({ personality: personality, derivedPda: pdaExists.address })
                 } else {

@@ -4,6 +4,7 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { LLMChain } from "langchain/chains";
 import OpenAI from "openai";
 import { Connection, PublicKey } from '@solana/web3.js';
+import { Message } from '@/components/models/ChatSimulatorV2';
 // Replace with your Supabase project URL and Anon key
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -51,11 +52,7 @@ export type PersonalityTemplate = {
       artists: Array<string | null>;
     };
   };
-  // education: {
-  //   degree: string | null;
-  //   university: string | null;
-  //   graduationYear: number | null;
-  // };
+  latestMemory?: EmotionalContext;
   // career: {
   //   currentPosition: string | null;
   //   company: string | null;
@@ -87,7 +84,12 @@ export type PersonalityTemplate = {
   };
 };
 
-
+type EmotionalContext = {
+  who: string;
+  what: string;
+  when: string;
+  why: string;
+};
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
@@ -169,7 +171,8 @@ export async function fetchPersonality(url: string): Promise<PersonalityTemplate
   }
 }
 
-export default async function processCommand(transcript: string,personality: PersonalityTemplate): Promise<string> {
+
+export default async function processCommand(transcript: string, personality: PersonalityTemplate): Promise<string> {
   console.log("processing command");
   if (!transcript.trim()) return "";
 
@@ -196,6 +199,15 @@ export default async function processCommand(transcript: string,personality: Per
     const sharedExperiences = personality.memories.sharedExperiences.map(e => `- ${e}`).join('\n');
     const personalStories = personality.memories.personalStories.map(s => `- ${s}`).join('\n');
     const languages = personality.languages.language.map(l => `- ${l.name} (${l.proficiency})`).join('\n');
+
+    // Add latest memory formatting
+    const latestMemory = personality.latestMemory;
+    const formattedLatestMemory = latestMemory?.who || latestMemory?.what || latestMemory?.when || latestMemory?.why
+      ? `Who: ${latestMemory?.who || 'unknown'}
+What: ${latestMemory?.what || 'unknown'}
+When: ${latestMemory?.when || 'unknown'}
+Why: ${latestMemory?.why || 'unknown'}`
+      : 'null';
 
     // Get favorite expressions and cultural references
     const favoriteMovies = personality.favorites.movies.join(', ');
@@ -236,6 +248,9 @@ export default async function processCommand(transcript: string,personality: Per
             Cultural references you often make (movies, music, etc.):
             Movies: ${favoriteMovies}
             Music: ${favoriteMusic}
+
+            Your latest memory:
+            ${formattedLatestMemory}
             
             LANGUAGE AND PERSONALITY GUIDELINES:
             - Make sure your reply is fully in ${languages}, maintaining natural expressions.
@@ -248,6 +263,7 @@ export default async function processCommand(transcript: string,personality: Per
             - If they had strong opinions on certain topics, maintain those perspectives
             - Maintain their unique sense of humor and way of telling stories
             - Never break character or acknowledge being an AI
+            - If the latest memory exists, start with it and reflect relevant emotions.
             
             When responding to: {text}
             
@@ -770,40 +786,40 @@ export async function parsePdaAccountData(
       ],
       programId
     );
-    
+
     // Get the account info
     const accountInfo = await connection.getAccountInfo(pdaAddress);
-    
+
     // If account doesn't exist, return null
     if (!accountInfo) {
       return null;
     }
-    
+
     // Parse the account data based on your program's data structure
     const dataBuffer = accountInfo.data;
-    
+
     // Skip discriminator (first 8 bytes)
     let offset = 8;
-    
+
     // Parse name (String - 4 bytes for length + variable content)
     const nameLength = dataBuffer.readUInt32LE(offset);
     offset += 4;
     const name = dataBuffer.slice(offset, offset + nameLength).toString('utf8');
     offset += nameLength;
-    
+
     // Parse uri (String - 4 bytes for length + variable content)
     const uriLength = dataBuffer.readUInt32LE(offset);
     offset += 4;
     const uri = dataBuffer.slice(offset, offset + uriLength).toString('utf8');
     offset += uriLength;
-    
+
     // Parse authority (Pubkey - 32 bytes)
     const authority = new PublicKey(dataBuffer.slice(offset, offset + 32));
     offset += 32;
-    
+
     // Parse bump (u8 - 1 byte)
     const bump = dataBuffer[offset];
-    
+
     // Return the parsed data
     return {
       address: pdaAddress.toString(),
@@ -812,9 +828,92 @@ export async function parsePdaAccountData(
       authority: authority.toString(),
       bump
     };
-    
+
   } catch (error) {
     console.error("Error parsing PDA account data:", error);
+    return null;
+  }
+}
+
+/**
+ * Parse data from an Emotions PDA account
+ * @param connection Solana connection
+ * @param entrySeed The entry seed public key
+ * @returns Promise with parsed emotions data or null if account doesn't exist
+ */
+export async function parseEmotionsPdaData(
+  connection: Connection,
+  entrySeed: PublicKey
+): Promise<EmotionalContext | null> {
+  console.log("parsing Emotions PDA");
+  const programId = new PublicKey(process.env.NEXT_PUBLIC_THE_GOOD_PLACE_PROGRAM_ID || "");
+  try {
+    // Derive the PDA address using the same seeds as your program
+    const [pdaAddress] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from("emotions"),  // Matches Rust seeds = [b"emotions", ...]
+        entrySeed.toBuffer()
+      ],
+      programId
+    );
+
+    // Get the account info
+    const accountInfo = await connection.getAccountInfo(pdaAddress);
+
+    // If account doesn't exist, return null
+    if (!accountInfo) {
+      return null;
+    }
+
+    // Parse the account data based on your program's data structure
+    const dataBuffer = accountInfo.data;
+
+    // Skip discriminator (first 8 bytes)
+    let offset = 8;
+
+    // Parse who (String - 4 bytes for length + up to 100 bytes content)
+    const whoLength = dataBuffer.readUInt32LE(offset);
+    offset += 4;
+    const who = dataBuffer.slice(offset, offset + whoLength).toString('utf8');
+    offset += whoLength;
+
+    // Parse what (String - 4 bytes for length + up to 100 bytes content)
+    const whatLength = dataBuffer.readUInt32LE(offset);
+    offset += 4;
+    const what = dataBuffer.slice(offset, offset + whatLength).toString('utf8');
+    offset += whatLength;
+
+    // Parse when (String - 4 bytes for length + up to 100 bytes content)
+    const whenLength = dataBuffer.readUInt32LE(offset);
+    offset += 4;
+    const when = dataBuffer.slice(offset, offset + whenLength).toString('utf8');
+    offset += whenLength;
+
+    // Parse where (String - 4 bytes for length + up to 100 bytes content)
+    const whereLength = dataBuffer.readUInt32LE(offset);
+    offset += 4;
+    const where = dataBuffer.slice(offset, offset + whereLength).toString('utf8');
+    offset += whereLength;
+
+    // Parse why (String - 4 bytes for length + up to 100 bytes content)
+    const whyLength = dataBuffer.readUInt32LE(offset);
+    offset += 4;
+    const why = dataBuffer.slice(offset, offset + whyLength).toString('utf8');
+    offset += whyLength;
+
+    // Skip authority (32 bytes) and bump (1 byte) as they're not needed in the return type
+    // offset += 33;  // Uncomment if you need to parse more fields after these
+
+    // Return the parsed data
+    return {
+      who,
+      what,
+      when,
+      why
+    };
+
+  } catch (error) {
+    console.error("Error parsing Emotions PDA data:", error);
     return null;
   }
 }
@@ -855,7 +954,7 @@ export async function textToSpeech(
 
     // Convert the response to a blob
     const blob = await response.blob();
-    
+
     // Create a URL for the audio blob
     const audioUrl = URL.createObjectURL(blob);
 
@@ -923,7 +1022,7 @@ export async function textToSpeechElevenLabs(
 
     // Get the audio data
     const audioBlob = await response.blob();
-    
+
     // Create a URL for the audio blob
     const audioUrl = URL.createObjectURL(audioBlob);
 
@@ -936,6 +1035,69 @@ export async function textToSpeechElevenLabs(
     return {
       success: false,
       error: error instanceof Error ? error.message : String(error)
+    };
+  }
+}
+
+export async function analyzeEmotionsFromConversation(
+  conversations: Message[]
+): Promise<EmotionalContext> {
+  try {
+    const client = new OpenAI({
+      apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+      dangerouslyAllowBrowser: true,
+    });
+
+    // Format conversations for analysis
+    const conversationText = conversations
+      .map(msg => `${msg.role}: ${msg.content}`)
+      .join('\n');
+
+    console.log("conversationText", conversationText);
+    
+    const response = await client.chat.completions.create({
+      model: "o3-mini",
+      messages: [
+        {
+          role: "system",
+          content: `Analyze the following conversation and extract emotional context. 
+          Respond in JSON format with the following structure. Each field must be 100 characters or less:
+          {
+            "who": "The main people involved (max 100 chars)",
+            "what": "The main emotional event or interaction (max 100 chars)",
+            "when": "The temporal context (max 100 chars)",
+            "why": "The reason or trigger (max 100 chars)"
+          }
+          
+          Be concise and focus on key emotional elements.`
+        },
+        {
+          role: "user",
+          content: conversationText
+        }
+      ],
+      response_format: { type: "json_object" },
+    });
+
+    const analysis = JSON.parse(response.choices[0]?.message?.content || "{}");
+
+    // Ensure all fields exist with fallbacks and are truncated to 100 chars
+    const emotionalContext: EmotionalContext = {
+      who: (analysis.who || "Unknown participant").slice(0, 100),
+      what: (analysis.what || "Unspecified interaction").slice(0, 100),
+      when: (analysis.when || "Recent moment").slice(0, 100),
+      why: (analysis.why || "Unknown reason").slice(0, 100)
+    };
+
+    return emotionalContext;
+  } catch (error) {
+    console.error('Error analyzing emotions:', error);
+    // Return default emotional context if analysis fails
+    return {
+      who: "Analysis failed",
+      what: "Error processing conversation",
+      when: "Unknown",
+      why: "Error in emotional analysis"
     };
   }
 }
