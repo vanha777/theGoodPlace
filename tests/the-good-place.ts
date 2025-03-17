@@ -129,4 +129,99 @@ describe("the-good-place", () => {
       expect(error).to.be.instanceOf(Error);
     }
   });
+
+  it("Can update emotions for a person", async () => {
+    // First create a person (which also creates empty emotions PDA)
+    const entrySeed = Keypair.generate();
+    
+    await program.methods
+      .createPerson("Person with Emotions", "https://example.com/person-emotions", sender.publicKey)
+      .accounts({
+        entrySeed: entrySeed.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([sender])
+      .rpc();
+
+    // Now update the emotions
+    const tx = await program.methods
+      .updateEmotions(
+        "My daughter Sarah",                                    // who
+        "Had a wonderful video call",                          // what
+        "Yesterday evening",                                   // when
+        "To catch up and share her exciting news about internship" // why
+      )
+      .accounts({
+        entrySeed: entrySeed.publicKey,
+      })
+      .signers([sender])
+      .rpc();
+
+    console.log("Update emotions transaction signature", tx);
+
+    // Verify the emotions update
+    const emotionsAccount = await program.account.emotions.fetch(
+      anchor.web3.PublicKey.findProgramAddressSync(
+        [Buffer.from("emotions"), entrySeed.publicKey.toBuffer()],
+        program.programId
+      )[0]
+    );
+
+    expect(emotionsAccount.who).to.equal("My daughter Sarah");
+    expect(emotionsAccount.what).to.equal("Had a wonderful video call");
+    expect(emotionsAccount.when).to.equal("Yesterday evening");
+    expect(emotionsAccount.why).to.equal("To catch up and share her exciting news about internship");
+    expect(emotionsAccount.authority.toString()).to.equal(sender.publicKey.toString());
+  });
+
+  it("Fails when unauthorized user tries to update emotions", async () => {
+    // First create a person with emotions
+    const entrySeed = Keypair.generate();
+    
+    await program.methods
+      .createPerson("Person with Protected Emotions", "https://example.com/protected", sender.publicKey)
+      .accounts({
+        entrySeed: entrySeed.publicKey,
+        systemProgram: SystemProgram.programId,
+      })
+      .signers([sender])
+      .rpc();
+
+    // Create an unauthorized user
+    const unauthorizedUser = Keypair.generate();
+
+    // Fund the unauthorized user
+    const airdropTx = await provider.connection.requestAirdrop(
+      unauthorizedUser.publicKey,
+      1000000000
+    );
+    await provider.connection.confirmTransaction(airdropTx);
+
+    // Try to update emotions with unauthorized user - should fail
+    try {
+      await program.methods
+        .updateEmotions(
+          "Unauthorized",
+          "Trying to hack",
+          "Now",
+          "Somewhere",
+          "Because I can"
+        )
+        .accounts({
+          entrySeed: entrySeed.publicKey,
+          emotions: anchor.web3.PublicKey.findProgramAddressSync(
+            [Buffer.from("emotions"), entrySeed.publicKey.toBuffer()],
+            program.programId
+          )[0],
+        })
+        .signers([unauthorizedUser])
+        .rpc();
+
+      // If we reach here, the test failed
+      expect.fail("Expected transaction to fail with unauthorized user");
+    } catch (error) {
+      // Expected error
+      expect(error).to.be.instanceOf(Error);
+    }
+  });
 });

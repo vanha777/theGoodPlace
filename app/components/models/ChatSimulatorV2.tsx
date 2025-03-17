@@ -441,6 +441,13 @@ export default function ChatSimulatorV2({
           },
         ],
       },
+      latestMemory: {
+        who: null,
+        what: null,
+        when: null,
+        where: null,
+        why: null,
+      },
     };
   };
 

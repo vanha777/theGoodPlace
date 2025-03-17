@@ -51,11 +51,13 @@ export type PersonalityTemplate = {
       artists: Array<string | null>;
     };
   };
-  // education: {
-  //   degree: string | null;
-  //   university: string | null;
-  //   graduationYear: number | null;
-  // };
+  latestMemory: {
+    who: string | null;
+    what: string | null;
+    when: string | null;
+    where: string | null;
+    why: string | null;
+  };
   // career: {
   //   currentPosition: string | null;
   //   company: string | null;
@@ -197,6 +199,16 @@ export default async function processCommand(transcript: string,personality: Per
     const personalStories = personality.memories.personalStories.map(s => `- ${s}`).join('\n');
     const languages = personality.languages.language.map(l => `- ${l.name} (${l.proficiency})`).join('\n');
 
+    // Add latest memory formatting
+    const latestMemory = personality.latestMemory;
+    const formattedLatestMemory = latestMemory.who || latestMemory.what || latestMemory.when || latestMemory.where || latestMemory.why
+      ? `Who: ${latestMemory.who || 'unknown'}
+What: ${latestMemory.what || 'unknown'}
+When: ${latestMemory.when || 'unknown'}
+Where: ${latestMemory.where || 'unknown'}
+Why: ${latestMemory.why || 'unknown'}`
+      : 'null';
+
     // Get favorite expressions and cultural references
     const favoriteMovies = personality.favorites.movies.join(', ');
     const favoriteMusic = personality.favorites.music.artists.join(', ');
@@ -236,6 +248,9 @@ export default async function processCommand(transcript: string,personality: Per
             Cultural references you often make (movies, music, etc.):
             Movies: ${favoriteMovies}
             Music: ${favoriteMusic}
+
+            Your latest memory:
+            ${formattedLatestMemory}
             
             LANGUAGE AND PERSONALITY GUIDELINES:
             - Make sure your reply is fully in ${languages}, maintaining natural expressions.
@@ -248,6 +263,7 @@ export default async function processCommand(transcript: string,personality: Per
             - If they had strong opinions on certain topics, maintain those perspectives
             - Maintain their unique sense of humor and way of telling stories
             - Never break character or acknowledge being an AI
+            - If the latest memory exists, start with it and reflect relevant emotions.
             
             When responding to: {text}
             
